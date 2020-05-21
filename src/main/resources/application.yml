@@ -1,0 +1,67 @@
+server:
+  undertow:
+    max-http-post-size: 2MB
+    threads:
+      io: 2
+  servlet:
+      charset: UTF-8
+      enabled: true
+      force: true
+        context-path: /
+        encoding:
+      session:
+        cookie:
+          http-only: true
+        persistent: true
+        store-dir: ./session/
+        timeout: 60m
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      druid:
+        initial-size: 5
+        min-idle: 5
+        max-active: 20
+        max-wait: 60000
+        time-between-eviction-runs-millis: 60000
+        min-evictable-idle-time-millis: 300000
+        validation-query: SELECT 1 FROM DUAL
+        test-while-idle: true
+        test-on-borrow: false
+        test-on-return: false
+        pool-prepared-statements: true
+        max-pool-prepared-statement-per-connection-size: 20
+        use-global-data-source-stat: true
+        connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500
+        filters:
+          commons-log.connection-logger-name: stat,wall,log4j
+  jmx:
+    default-domain: lognet
+  mvc:
+    throw-exception-if-no-handler-found: true
+  resources:
+    add-mappings: false
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 2MB
+  jpa:
+    database: MYSQL
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+      naming:
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+  profiles:
+    active: dev
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      additional-paths: src/main/java
+logging:
+  file:
+    path: ./logs/lognet
