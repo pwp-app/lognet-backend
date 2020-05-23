@@ -32,4 +32,5 @@ build/
 
 ### Config ###
 recaptcha.properties
+key.properties
 application-deploy.yml
