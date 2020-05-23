@@ -15,7 +15,9 @@ import javax.persistence.PersistenceContext;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BaseDao<T> {
     @PersistenceContext
@@ -59,6 +61,21 @@ public class BaseDao<T> {
             return false;
         }
         return flag;
+    }
+
+    public long countBySession(String hql, HashMap<String, Object> params) {
+        Session session = this.getHibernateSession();
+        try {
+            Query<T> query = session.createQuery(hql);
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                query.setParameter(entry.getKey(), entry.getValue());
+            }
+            query.setMaxResults(1);
+            return (Long) query.uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
     }
 
     public long countByHql(String hql) {
@@ -115,6 +132,20 @@ public class BaseDao<T> {
         } catch (Exception e){
             e.printStackTrace();
             return -1;
+        }
+    }
+
+    public T getBySession(String hql, HashMap<String, Object> params) {
+        Session session = this.getHibernateSession();
+        try {
+            Query<T> query = session.createQuery(hql);
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                query.setParameter(entry.getKey(), entry.getValue());
+            }
+            return (T)query.setMaxResults(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
