@@ -1,4 +1,4 @@
-package app.pwp.lognet.app.model;
+package app.pwp.lognet.system.model;
 
 import app.pwp.lognet.base.model.BaseEntity;
 
@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "lognet_user")
-public class User extends BaseEntity {
+public class User extends BaseEntity implements Serializable {
     @Column(nullable = false)
     private String username;
     @Column(nullable = false)

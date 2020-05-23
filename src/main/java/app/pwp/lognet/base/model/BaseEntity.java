@@ -1,11 +1,10 @@
 package app.pwp.lognet.base.model;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Date;
 
 @MappedSuperclass
-public abstract class BaseEntity extends Base implements Serializable {
+public abstract class BaseEntity extends Base {
     private Date createTime;
 
     private Date lastUpdateTime;

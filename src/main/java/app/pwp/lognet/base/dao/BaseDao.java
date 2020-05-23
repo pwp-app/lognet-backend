@@ -9,6 +9,7 @@ import org.hibernate.criterion.Projection;
 import org.hibernate.internal.CriteriaImpl;
 import org.hibernate.query.Query;
 import org.springframework.orm.hibernate5.SessionFactoryUtils;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -19,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Repository
 public class BaseDao<T> {
     @PersistenceContext
     private EntityManager entityManager;
