@@ -1,0 +1,44 @@
+package app.pwp.lognet.system.service;
+
+import app.pwp.lognet.config.common.RecaptchaConfig;
+import app.pwp.lognet.utils.network.Http;
+import app.pwp.lognet.utils.network.HttpResult;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
+import org.springframework.stereotype.Service;
+import org.springframework.util.concurrent.ListenableFuture;
+
+import javax.annotation.Resource;
+import java.util.HashMap;
+
+@Service
+public class RecaptchaService {
+    @Resource
+    private RecaptchaConfig recaptchaConfig;
+
+    private final String VERIFY_URL = "https://www.recaptcha.net/recaptcha/api/siteverify";
+    private final double THRESHOLD = 0.8;
+
+    @Async
+    public ListenableFuture<Boolean> verify(String token) {
+        if (token == null || token.length() < 1) {
+            return new AsyncResult<>(false);
+        }
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("secret", recaptchaConfig.getSecret());
+        params.put("response", token);
+        try {
+            HttpResult res = Http.doPost(VERIFY_URL, params);
+            if (res.getCode() != 200 || res.getBody() == null) {
+                return new AsyncResult<>(false);
+            }
+            JSONObject parsedObject = JSON.parseObject(res.getBody());
+            return new AsyncResult<>((double)parsedObject.get("score") >= THRESHOLD);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new AsyncResult<>(false);
+        }
+    }
+}

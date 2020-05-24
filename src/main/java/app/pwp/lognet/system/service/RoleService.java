@@ -13,7 +13,7 @@ public class RoleService extends BaseService<Role> {
     public boolean exists(String name) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("name", name);
-        return this.baseDao.countBySession("FROM Role WHERE name = :name", params) > 0;
+        return this.baseDao.countBySession("SELECT count(*) FROM Role WHERE name = :name", params) > 0;
     }
 
     public boolean add(String name, int level) {
