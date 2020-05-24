@@ -1,12 +1,16 @@
 package app.pwp.lognet.base.model;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
 import javax.persistence.*;
 import java.util.Date;
 
 @MappedSuperclass
 public abstract class BaseEntity extends Base {
+    @CreatedDate
     private Date createTime;
-
+    @LastModifiedDate
     private Date lastUpdateTime;
 
     public Date getCreateTime() {

@@ -68,7 +68,7 @@ public class BaseDao<T> {
     public long countBySession(String hql, HashMap<String, Object> params) {
         Session session = this.getHibernateSession();
         try {
-            Query<T> query = session.createQuery(hql);
+            Query query = session.createQuery(hql);
             for (Map.Entry<String, Object> entry : params.entrySet()) {
                 query.setParameter(entry.getKey(), entry.getValue());
             }
