@@ -1,5 +1,6 @@
 package app.pwp.lognet.config.shiro;
 
+import app.pwp.lognet.LognetApplication;
 import net.sf.ehcache.CacheManager;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.cache.ehcache.EhCacheManager;
@@ -21,14 +22,13 @@ import org.springframework.context.annotation.Configuration;
 import javax.annotation.Resource;
 import javax.servlet.Filter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 
 @Configuration
 public class ShiroConfig {
-    @Resource
-    private ShiroKeyConfig shiroKeyConfig;
-
     @Bean
     public EhCacheManager ehCacheManager() {
         CacheManager cm = CacheManager.getCacheManager("es");
@@ -67,10 +67,13 @@ public class ShiroConfig {
     }
 
     @Bean
-    public CookieRememberMeManager rememberMeManager() {
+    public CookieRememberMeManager rememberMeManager() throws IOException {
         CookieRememberMeManager cookieRememberMeManager = new CookieRememberMeManager();
         cookieRememberMeManager.setCookie(rememberMeCookie());
-        cookieRememberMeManager.setCipherKey(shiroKeyConfig.getChpherkey().getBytes());
+        Properties properties = new Properties();
+        InputStream in = LognetApplication.class.getClassLoader().getResourceAsStream("shiro/key.properties");
+        properties.load(in);
+        cookieRememberMeManager.setCipherKey(((String)properties.get("shiro.cipher-key")).getBytes());
         return cookieRememberMeManager;
     }
 
@@ -80,7 +83,7 @@ public class ShiroConfig {
     }
 
     @Bean({"securityManager"})
-    public SecurityManager securityManager() {
+    public SecurityManager securityManager() throws IOException {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         securityManager.setRealm(realm());
         securityManager.setCacheManager(ehCacheManager());
