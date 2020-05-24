@@ -30,22 +30,22 @@ public class R {
         return r;
     }
 
-    public static R ok() {
+    public static R success() {
         R r = new R(200, "success");
         return r;
     }
 
-    public static R ok(String message) {
+    public static R success(String message) {
         R r = new R(200, message);
         return r;
     }
 
-    public static R ok(Object data) {
+    public static R success(Object data) {
         R r = new R(200, "success", data);
         return r;
     }
 
-    public static R ok(String message, Object data) {
+    public static R success(String message, Object data) {
         R r = new R(200, message, data);
         return r;
     }
@@ -76,7 +76,7 @@ public class R {
         return new R(403, message);
     }
 
-    public static R noufound() { return new R(404, "API not found."); }
+    public static R notfound() { return new R(404, "API not found."); }
 
     public static R unauth(){
         return new R(401, "UnAuthorized");
