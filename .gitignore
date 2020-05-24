@@ -40,5 +40,6 @@ session
 ### Config ###
 recaptcha.properties
 key.properties
+czip.properties
 alimap.properties
 application-deploy.yml
