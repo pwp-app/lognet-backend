@@ -40,7 +40,7 @@
            timeToLiveSeconds="3600"
            overflowToDisk="true"
            diskPersistent="true"
-           diskSpoolBufferSizeMB="128MB"
+           diskSpoolBufferSizeMB="128"
            statistics="true">
     </cache>
 
