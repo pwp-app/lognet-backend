@@ -1,6 +1,7 @@
 package app.pwp.lognet;
 
 import app.pwp.lognet.system.service.RoleService;
+import app.pwp.lognet.utils.geo.CZIP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -13,11 +14,14 @@ import javax.annotation.Resource;
 public class LognetInitializer implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(LognetInitializer.class);
     @Resource
+    private CZIP czip;
+    @Resource
     private RoleService roleService;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
         log.info("Start check roles in database...");
+        // 初始化权限数据
         String[] roles = {"admin", "user"};
         int[] roles_level = {2, 1};
         for (int i = 0; i < roles.length; i++) {
@@ -30,5 +34,9 @@ public class LognetInitializer implements ApplicationRunner {
             }
         }
         log.info("Roles check finished.");
+        log.info("Start init CZIP database...");
+        // 初始化纯真IP地址库
+        czip.init();
+        log.info("CZIP Database init finished.");
     }
 }
