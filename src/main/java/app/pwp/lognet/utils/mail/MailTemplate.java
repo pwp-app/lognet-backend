@@ -13,7 +13,7 @@ public class MailTemplate {
         // 读取邮件模板
         String[] names = { "validation" };
         for (String name : names) {
-            templates.put(name, IOUtils.toString(LognetApplication.class.getClassLoader().getResourceAsStream("classpath:mail_templates/template_" + name), "UTF-8"));
+            templates.put(name, IOUtils.toString(LognetApplication.class.getClassLoader().getResourceAsStream("classpath:mail_templates/template_" + name + ".html"), "UTF-8"));
         }
     }
     // 构造邮件HTML
