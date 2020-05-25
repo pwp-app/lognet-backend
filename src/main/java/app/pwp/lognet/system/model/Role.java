@@ -18,6 +18,8 @@ public class Role extends Base implements Serializable  {
     @Column(nullable = false)
     private int level;
 
+    public Role() {}
+
     public Role(String name) {
         this.name = name;
         this.level = 0;
