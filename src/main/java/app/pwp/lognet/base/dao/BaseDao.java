@@ -68,12 +68,12 @@ public class BaseDao<T> {
     public long countBySession(String hql, HashMap<String, Object> params) {
         Session session = this.getHibernateSession();
         try {
-            Query query = session.createQuery(hql);
+            Query<Long> query = session.createQuery(hql);
             for (Map.Entry<String, Object> entry : params.entrySet()) {
                 query.setParameter(entry.getKey(), entry.getValue());
             }
             query.setMaxResults(1);
-            return (Long) query.uniqueResult();
+            return query.uniqueResult();
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -144,7 +144,8 @@ public class BaseDao<T> {
             for (Map.Entry<String, Object> entry : params.entrySet()) {
                 query.setParameter(entry.getKey(), entry.getValue());
             }
-            return (T)query.setMaxResults(1);
+            query.setMaxResults(1);
+            return query.uniqueResult();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
