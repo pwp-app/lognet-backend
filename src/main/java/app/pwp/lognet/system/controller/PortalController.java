@@ -37,6 +37,7 @@ public class PortalController {
             return R.success("用户已登录");
         }
         UsernamePasswordToken token = new UsernamePasswordToken(form.getUsername(), form.getPassword());
+        token.setRememberMe(form.isRememberMe());
         try {
             subject.login(token);
         } catch (UnknownAccountException | IncorrectCredentialsException e) {
