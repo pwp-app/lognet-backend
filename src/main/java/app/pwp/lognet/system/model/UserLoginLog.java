@@ -11,6 +11,7 @@ import java.io.Serializable;
 public class UserLoginLog extends BaseLog implements Serializable {
     private long uid;
     private String ip;
+    private String geo;
     public UserLoginLog() {}
     public UserLoginLog(long uid) {
         this.uid = uid;
@@ -34,5 +35,13 @@ public class UserLoginLog extends BaseLog implements Serializable {
 
     public void setIp(String ip) {
         this.ip = ip;
+    }
+
+    public String getGeo() {
+        return geo;
+    }
+
+    public void setGeo(String geo) {
+        this.geo = geo;
     }
 }
