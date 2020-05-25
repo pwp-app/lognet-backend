@@ -8,13 +8,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/ping")
 public class PingController {
-    @GetMapping("/")
+    @GetMapping("/ping")
     public R ping() {
         return R.success();
     }
-    @GetMapping("/state")
+    @GetMapping("/ping/state")
     public R stateCheck() {
         Subject subject = SecurityUtils.getSubject();
         if (subject.isAuthenticated() || subject.isRemembered()){
