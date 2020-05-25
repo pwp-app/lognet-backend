@@ -13,10 +13,14 @@ import java.util.HashMap;
 @Service
 @Transactional(rollbackFor=Exception.class)
 public class UserService extends BaseService<User> {
+    public boolean create(User user) {
+        return this.baseDao.add(user);
+    }
+
     public User getByUsername(String username) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("username", username);
-        return this.baseDao.getBySession("FROM USER WHERE username = :username", params);
+        return this.baseDao.getBySession("FROM User WHERE username = :username", params);
     }
 
     public User getById(Long id) {
