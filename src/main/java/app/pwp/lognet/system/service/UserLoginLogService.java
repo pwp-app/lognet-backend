@@ -30,6 +30,7 @@ public class UserLoginLogService extends BaseService<UserLoginLog> {
             if (location.getProvince() != null) {
                 log.setGeo(location.toString());
             } else {
+                // 高德LBS无法获取到，可能是国外IP，使用纯真IP
                 log.setGeo(czip.getIPLocation(ip).toString());
             }
         }
