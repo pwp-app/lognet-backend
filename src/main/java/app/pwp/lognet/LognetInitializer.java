@@ -22,8 +22,8 @@ public class LognetInitializer implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         log.info("Start check roles in database...");
         // 初始化权限数据
-        String[] roles = {"admin", "user"};
-        int[] roles_level = {2, 1};
+        String[] roles = {"guest", "user", "admin"};
+        int[] roles_level = {0, 1, 2};
         for (int i = 0; i < roles.length; i++) {
             if (!roleService.exists(roles[i])) {
                 log.info("Role ["+roles[i]+"] doesn't exist, adding to database...");
