@@ -4,7 +4,6 @@ server:
     threads:
       io: 2
   servlet:
-      context-path: /
       encoding:
         charset: UTF-8
         enabled: true
