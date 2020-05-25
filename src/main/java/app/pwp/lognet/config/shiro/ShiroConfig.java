@@ -33,7 +33,7 @@ public class ShiroConfig {
         CacheManager cm = CacheManager.getCacheManager("es");
         if (cm == null) {
             try {
-                cm = CacheManager.create(ResourceUtils.getInputStreamForPath("classpath:shiro/ehcache.xml"));
+                cm = CacheManager.create(ResourceUtils.getInputStreamForPath("classpath:common/ehcache.xml"));
             } catch (IOException e) {
                 e.printStackTrace();
             }

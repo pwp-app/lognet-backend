@@ -22,25 +22,23 @@
             LRU，Least Recently Used，最近最少使用的，缓存的元素有一个时间戳，当缓存容量满了，而又需要腾出地方来缓存新的元素的时候，那么现有缓存元素中时间戳离当前时间最远的元素将被清出缓存。
     -->
     <defaultCache
-            maxElementsInMemory="20000"
-            maxElementsOnDisk="50000"
-            eternal="false"
-            timeToIdleSeconds="120"
-            timeToLiveSeconds="120"
+            maxElementsInMemory="2000"
+            maxElementsOnDisk="5000"
+            eternal="true"
             overflowToDisk="true"
             diskPersistent="true"
+            diskSpoolBufferSizeMB="128"
             diskExpiryThreadIntervalSeconds="120"
     />
 
     <!-- 登录记录缓存锁定30分钟 -->
     <cache name="passwordRetryCache"
-           maxEntriesLocalHeap="2000"
            eternal="false"
            timeToIdleSeconds="0"
            timeToLiveSeconds="3600"
            overflowToDisk="true"
            diskPersistent="true"
-           diskSpoolBufferSizeMB="128"
+           diskSpoolBufferSizeMB="32"
            statistics="true">
     </cache>
 
