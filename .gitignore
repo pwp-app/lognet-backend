@@ -43,3 +43,4 @@ key.properties
 czip.properties
 alimap.properties
 application-deploy.yml
+application-mail.yml

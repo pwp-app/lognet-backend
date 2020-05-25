@@ -54,12 +54,16 @@ spring:
         physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
   profiles:
-    active: dev
+    active: common,mail,dev
   devtools:
     livereload:
       enabled: true
     restart:
       additional-paths: src/main/java
+  cache:
+    type: ehcache
+    ehcache:
+      config: classpath:/ehcache.xml
 logging:
   file:
     path: ./logs/lognet

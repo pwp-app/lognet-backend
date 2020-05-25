@@ -2,6 +2,7 @@ package app.pwp.lognet.utils.geo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +21,8 @@ public class CZIP {
     /**
      * 纯真IP数据库名
      */
-    private String IP_FILE = "";
+    @Value(value = "${czip.path}")
+    private String IP_FILE;
 
     /**
      * 常量，比如记录长度等等
@@ -81,7 +83,6 @@ public class CZIP {
      */
     private static final String UNKNOWN_AREA = "未知地区";
 
-
     public void init() {
         try {
             // 缓存一定要用ConcurrentHashMap， 避免多线程下获取为空
@@ -90,9 +91,6 @@ public class CZIP {
             buf = new byte[100];
             b4 = new byte[4];
             b3 = new byte[3];
-            Properties properties = new Properties();
-            properties.load(new ClassPathResource("geo/czip.properties").getInputStream());
-            IP_FILE = properties.getProperty("czip.path");
             try {
                 ipFile = new RandomAccessFile(IP_FILE, "r");
             } catch (FileNotFoundException e) {

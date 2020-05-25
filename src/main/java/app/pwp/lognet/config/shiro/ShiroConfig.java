@@ -16,6 +16,7 @@ import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.SimpleCookie;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -33,7 +34,7 @@ public class ShiroConfig {
         CacheManager cm = CacheManager.getCacheManager("es");
         if (cm == null) {
             try {
-                cm = CacheManager.create(ResourceUtils.getInputStreamForPath("classpath:common/ehcache.xml"));
+                cm = CacheManager.create(ResourceUtils.getInputStreamForPath("classpath:ehcache.xml"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -66,14 +67,14 @@ public class ShiroConfig {
         return simpleCookie;
     }
 
+    @Value(value = "${shiro.key}")
+    private String COOKIE_CIPHER_KEY;
+
     @Bean
     public CookieRememberMeManager rememberMeManager() throws IOException {
         CookieRememberMeManager cookieRememberMeManager = new CookieRememberMeManager();
         cookieRememberMeManager.setCookie(rememberMeCookie());
-        Properties properties = new Properties();
-        InputStream in = LognetApplication.class.getClassLoader().getResourceAsStream("shiro/key.properties");
-        properties.load(in);
-        cookieRememberMeManager.setCipherKey(((String)properties.get("shiro.cipher-key")).getBytes());
+        cookieRememberMeManager.setCipherKey(COOKIE_CIPHER_KEY.getBytes());
         return cookieRememberMeManager;
     }
 
