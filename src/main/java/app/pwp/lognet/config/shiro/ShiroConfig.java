@@ -19,7 +19,6 @@ import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreato
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.Resource;
 import javax.servlet.Filter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,7 +61,8 @@ public class ShiroConfig {
     @Bean
     public SimpleCookie rememberMeCookie() {
         SimpleCookie simpleCookie = new SimpleCookie("rememberMe");
-        simpleCookie.setMaxAge(2419200);
+        // 30天免登录
+        simpleCookie.setMaxAge(2592000);
         return simpleCookie;
     }
 
@@ -92,9 +92,11 @@ public class ShiroConfig {
         return securityManager;
     }
 
-    public OptionsRequestFilter optionsRequestFilter(){
-        return new OptionsRequestFilter();
+    public OptionsRequestUserFilter optionsRequestUserFilter(){
+        return new OptionsRequestUserFilter();
     }
+
+    public OptionsRequestRolesFilter optionsRequestRolesFilter() { return new OptionsRequestRolesFilter(); }
 
     @Bean({"shiroFilter"})
     public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager) {
@@ -103,8 +105,14 @@ public class ShiroConfig {
         // 配置未授权状态的跳转
         shiroFilter.setLoginUrl("/error/auth");
         shiroFilter.setUnauthorizedUrl("/error/auth");
+        // 自定义过滤器
+        Map<String, Filter> filterMap = new LinkedHashMap<>();
+        filterMap.put("user", optionsRequestUserFilter());
+        filterMap.put("roles", optionsRequestRolesFilter());
+        shiroFilter.setFilters(filterMap);
         // 配置不会被拦截的api
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
+        filterChainDefinitionMap.put("/portal/logout", "logout");
         // 允许无需权限访问的路径
         String[] anonPaths = {
                 "/error/**",
@@ -116,12 +124,8 @@ public class ShiroConfig {
             filterChainDefinitionMap.put(path, "anon");
         }
         // 对应的是user拦截器，支持rememberMe
-        filterChainDefinitionMap.put("/**", "optionsRequestFilter");
+        filterChainDefinitionMap.put("/**", "user");
         shiroFilter.setFilterChainDefinitionMap(filterChainDefinitionMap);
-        // 自定义过滤器
-        Map<String, Filter> filterMap = new LinkedHashMap<>();
-        filterMap.put("optionsRequestFilter", optionsRequestFilter());
-        shiroFilter.setFilters(filterMap);
         return shiroFilter;
     }
 

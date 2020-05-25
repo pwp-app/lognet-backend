@@ -10,7 +10,7 @@ import java.io.IOException;
 import com.alibaba.fastjson.JSON;
 import app.pwp.lognet.utils.common.R;
 
-public class OptionsRequestFilter extends UserFilter {
+public class OptionsRequestUserFilter extends UserFilter {
     @Override
     public boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue){
         if ("OPTIONS".equals(((HttpServletRequest)request).getMethod().toUpperCase())){
@@ -28,7 +28,7 @@ public class OptionsRequestFilter extends UserFilter {
         httpServletResponse.setCharacterEncoding("UTF-8");
         httpServletResponse.setContentType("application/json");
         httpServletResponse.setStatus(401);
-        httpServletResponse.getWriter().write(JSON.toJSONString(R.unauth("Please login first.")));
+        httpServletResponse.getWriter().write(JSON.toJSONString(R.unauth("请先登录")));
         return false;
     }
 }
