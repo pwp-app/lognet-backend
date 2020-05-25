@@ -15,4 +15,8 @@ public class RecaptchaConfig {
     public String getSecret() {
         return secret;
     }
+
+    public void setSecret(String secret) {
+        this.secret = secret;
+    }
 }
