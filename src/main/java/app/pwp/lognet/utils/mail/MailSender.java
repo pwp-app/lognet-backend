@@ -12,7 +12,7 @@ import javax.mail.internet.MimeMessage;
 @Component
 public class MailSender {
 
-    private String from = "\"pwp.app\" <validaton@pwp.app>";
+    private String from = "\"Lognet\" <validaton@pwp.app>";
 
     @Resource
     private JavaMailSender mailSender;
