@@ -7,7 +7,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 
-public class UserRegister implements Serializable {
+public class UserRegisterForm implements Serializable {
     @NotEmpty(message = "用户名不能为空")
     @Length(min=4, max=30, message = "用户名长度必须为4-30个字符")
     @Pattern(regexp = "^[A-Za-z0-9_]+$", message = "用户名只能为字母、数字、下划线")

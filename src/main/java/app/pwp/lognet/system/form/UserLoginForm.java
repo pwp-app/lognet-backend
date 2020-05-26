@@ -3,7 +3,7 @@ package app.pwp.lognet.system.form;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 
-public class UserLogin implements Serializable {
+public class UserLoginForm implements Serializable {
     @NotEmpty(message = "用户名不能为空")
     private String username;
     @NotEmpty(message = "密码不能为空")
