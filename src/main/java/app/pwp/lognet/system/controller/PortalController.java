@@ -1,8 +1,9 @@
 package app.pwp.lognet.system.controller;
 
 import app.pwp.lognet.LognetApplication;
-import app.pwp.lognet.system.form.UserLogin;
-import app.pwp.lognet.system.form.UserRegister;
+import app.pwp.lognet.system.form.MailValidateForm;
+import app.pwp.lognet.system.form.UserLoginForm;
+import app.pwp.lognet.system.form.UserRegisterForm;
 import app.pwp.lognet.system.model.Role;
 import app.pwp.lognet.system.model.User;
 import app.pwp.lognet.system.model.UserResponse;
@@ -10,10 +11,14 @@ import app.pwp.lognet.system.service.RoleService;
 import app.pwp.lognet.system.service.UserLoginLogService;
 import app.pwp.lognet.utils.auth.ReCaptcha;
 import app.pwp.lognet.system.service.UserService;
+import app.pwp.lognet.utils.auth.ValidationUtils;
 import app.pwp.lognet.utils.common.R;
 import app.pwp.lognet.utils.geo.CZIPStringUtils;
+import app.pwp.lognet.utils.mail.MailSender;
+import app.pwp.lognet.utils.mail.MailTemplate;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
@@ -22,9 +27,12 @@ import org.apache.shiro.subject.Subject;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/portal")
@@ -37,12 +45,16 @@ public class PortalController {
     private RoleService roleService;
     @Resource
     private ReCaptcha reCaptcha;
+    @Resource
+    private MailSender mailSender;
 
     private CacheManager cacheManager = CacheManager.create(LognetApplication.class.getClassLoader().getResourceAsStream("ehcache.xml"));
-    private Cache cache = cacheManager.getCache("validationCodeCache");
+    private Cache validationCodeCache = cacheManager.getCache("validationCodeCache");
+    private Cache validationSendCache = cacheManager.getCache("validationSendCache");
+    private Cache validationRetryCache = cacheManager.getCache("validationRetryCache");
 
     @PostMapping("/login")
-    public R login(@RequestBody @Valid UserLogin form, HttpServletRequest req) throws Exception {
+    public R login(@RequestBody @Valid UserLoginForm form, HttpServletRequest req) throws Exception {
         Subject subject = SecurityUtils.getSubject();
         // 用户重复登录了，返回成功放行
         if (subject.isAuthenticated()){
@@ -79,7 +91,7 @@ public class PortalController {
     }
 
     @PostMapping("/register")
-    public R register(@RequestBody @Valid UserRegister form) throws ExecutionException, InterruptedException {
+    public R register(@RequestBody @Valid UserRegisterForm form) throws ExecutionException, InterruptedException {
         // 验证密码
         if (!form.getPassword().equals(form.getConfirmPassword())) {
             return R.badRequest("两次输入的密码不一致，请检查后重试");
@@ -105,11 +117,63 @@ public class PortalController {
     }
 
     @GetMapping("/sendValidation")
-    public R sendValidation(String email) {
-        if (cache.isKeyInCache("EMAIL_VALID_" + email)) {
+    public R sendValidation(String email) throws MessagingException {
+        // 正则判断是否有效
+        if (!Pattern.matches("^[_a-z0-9-]+(\\.[_a-z0-9-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,})", email)) {
+            return R.badRequest("请提交合法的参数");
+        }
+        // 检查是否已经禁止
+        if (validationRetryCache.isKeyInCache("EMAIL_RETRY_" + email)) {
+            Integer retry = (Integer) validationRetryCache.get("EMAIL_RETRY_" + email).getObjectValue();
+            if (retry >= 10) {
+                return R.error("该帐户暂时不能进行验证，请稍后再试");
+            }
+        }
+        // 检查是否发送冷却
+        if (validationSendCache.isKeyInCache("EMAIL_SEND_" + email)) {
             return R.error("不能重复发送，请稍后再试");
         }
+        // 检查是否为用户
 
+        // 生成一个六位数
+        String code = String.valueOf(ValidationUtils.generateCode());
+        validationCodeCache.put(new Element("EMAIL_CODE_" + email, code));
+        validationSendCache.put(new Element("EMAIL_SEND_" + email, null));
+        HashMap<String, String> mailParams = new HashMap<>();
+        mailParams.put("code", code);
+        mailSender.sendHTMLMail(email, "Lognet - 邮箱验证", MailTemplate.build("validation", mailParams));
+        return R.success("发送成功");
+    }
+
+    @PostMapping("/validate")
+    public R validate(@RequestBody @Valid MailValidateForm form) {
+        // 检查是否已经被禁止
+        Integer retry = -1;
+        if (validationRetryCache.isKeyInCache("EMAIL_RETRY_" + form.getEmail())) {
+            Integer _retry = (Integer) validationRetryCache.get("EMAIL_RETRY_" + form.getEmail()).getObjectValue();
+            if (_retry != null) {
+                if ( _retry >= 10) {
+                    return R.error("该帐户暂时不能进行验证，请稍后再试");
+                } else {
+                    retry = _retry;
+                }
+            }
+        }
+        // 检查是否有对应的Code
+        if (!validationCodeCache.isKeyInCache("EMAIL_CODE_" + form.getEmail())) {
+            return R.error("找不到对应的验证码");
+        }
+        String code = (String) validationCodeCache.get("EMAIL_CODE_" + form.getEmail()).getObjectValue();
+        if (!code.equals(form.getCode())) {
+            if (retry < 0) {
+                retry = 1;
+            } else {
+                retry++;
+            }
+            validationRetryCache.put(new Element("EMAIL_RETRY_" + form.getEmail(), retry));
+            return R.error("验证失败");
+        }
+        return R.success("验证成功");
     }
 
     @GetMapping("/logout")

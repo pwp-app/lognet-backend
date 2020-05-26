@@ -2,6 +2,7 @@ package app.pwp.lognet;
 
 import app.pwp.lognet.system.service.RoleService;
 import app.pwp.lognet.utils.geo.CZIP;
+import app.pwp.lognet.utils.mail.MailTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -20,7 +21,7 @@ public class LognetInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        log.info("Start check roles in database...");
+        log.info("Start checking roles in database...");
         // 初始化权限数据
         String[] roles = {"guest", "user", "admin"};
         int[] roles_level = {0, 1, 2};
@@ -34,9 +35,12 @@ public class LognetInitializer implements ApplicationRunner {
             }
         }
         log.info("Roles check finished.");
-        log.info("Start init CZIP database...");
+        log.info("Start initializing CZIP database...");
         // 初始化纯真IP地址库
         czip.init();
         log.info("CZIP Database init finished.");
+        log.info("Start initializing mail templates...");
+        MailTemplate.init();
+        log.info("Mail Templates ini finished.");
     }
 }

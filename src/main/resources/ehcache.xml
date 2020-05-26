@@ -28,7 +28,7 @@
     <!-- 普通查询缓存 -->
     <cache name="queryCache"
            maxElementsInMemory="1000"
-           maxElementsOnDisk="3000"
+           maxElementsOnDisk="5000"
            eternal="true"
            overflowToDisk="true"
            diskPersistent="true"
@@ -37,7 +37,7 @@
     </cache>
     <!-- 邮箱验证码缓存 有效期30分钟 -->
     <cache name="validationCodeCache"
-           maxElementsInMemory="2000"
+           maxElementsInMemory="1000"
            eternal="false"
            timeToIdleSeconds="0"
            timeToLiveSeconds="1800"
@@ -45,7 +45,27 @@
            diskPersistent="true"
            diskSpoolBufferSizeMB="16">
     </cache>
-    <!-- 登录记录缓存锁定10分钟 -->
+    <!-- 发送缓存，每60秒只能发送一次 -->
+    <cache name="validationSendCache"
+           maxElementsInMemory="1000"
+           eternal="false"
+           timeToIdleSeconds="0"
+           timeToLiveSeconds="60"
+           overflowToDisk="true"
+           diskPersistent="true"
+           diskSpoolBufferSizeMB="16">
+    </cache>
+    <!-- 验证失败缓存，锁定10分钟 -->
+    <cache name="validationRetryCache"
+           maxElementsInMemory="1000"
+           eternal="false"
+           timeToIdleSeconds="0"
+           timeToLiveSeconds="600"
+           overflowToDisk="true"
+           diskPersistent="true"
+           diskSpoolBufferSizeMB="16">
+    </cache>
+    <!-- 登录失败缓存，锁定10分钟 -->
     <cache name="passwordRetryCache"
            maxElementsInMemory="500"
            maxElementsOnDisk="2000"
