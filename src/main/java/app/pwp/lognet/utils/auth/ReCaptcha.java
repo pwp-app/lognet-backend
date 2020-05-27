@@ -10,15 +10,16 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 
 @Component
 public class ReCaptcha {
 
-    @Value(value = "recaptcha.secret")
+    @Value(value = "${recaptcha.secret}")
     private String SECRET;
     private final String VERIFY_URL = "https://www.recaptcha.net/recaptcha/api/siteverify";
-    private final double THRESHOLD = 0.8;
+    private final double THRESHOLD = 0.6;
 
     @Async
     public ListenableFuture<Boolean> verify(String token) {
@@ -34,7 +35,11 @@ public class ReCaptcha {
                 return new AsyncResult<>(false);
             }
             JSONObject parsedObject = JSON.parseObject(res.getBody());
-            return new AsyncResult<>((double)parsedObject.get("score") >= THRESHOLD);
+            if (!(boolean) parsedObject.get("success")) {
+                return new AsyncResult<>(false);
+            }
+            //return new AsyncResult<>(((BigDecimal) parsedObject.get("score")).doubleValue() >= THRESHOLD);
+            return new AsyncResult<>(true);
         } catch (Exception e) {
             e.printStackTrace();
             return new AsyncResult<>(false);
