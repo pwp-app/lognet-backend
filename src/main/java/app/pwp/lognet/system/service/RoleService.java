@@ -16,17 +16,15 @@ public class RoleService extends BaseService<Role> {
         params.put("name", name);
         return this.baseDao.countBySession("SELECT count(*) FROM Role WHERE name = :name", params) > 0;
     }
-
     public boolean add(String name, int level) {
         Role role = new Role(name, level);
         return this.baseDao.add(role);
     }
-
-    @Cacheable(value="queryCache", key = "'role_' + #id")
+    @Cacheable(value = "queryCache", key = "'role_' + #id")
     public Role getById(long id) {
         return this.baseDao.getById(Role.class, id);
     }
-    @Cacheable(value="queryCache", key = "'role_' + #name")
+    @Cacheable(value = "queryCache", key = "'role_' + #name")
     public Role getByName(String name) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("name", name);

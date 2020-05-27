@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache name="common">
+    <diskStore path="java.io.tmpdir"/>
+    <defaultCache
+            maxElementsInMemory="1000"
+            maxElementsOnDisk="3000"
+            eternal="true"
+            overflowToDisk="true"
+            diskPersistent="true"
+            diskSpoolBufferSizeMB="32"
+    />
+    <!-- 普通查询缓存 -->
+    <cache name="queryCache"
+           maxElementsInMemory="5000"
+           maxElementsOnDisk="10000"
+           eternal="true"
+           overflowToDisk="true"
+           diskPersistent="true"
+           diskSpoolBufferSizeMB="32"/>
+    <!-- 邮箱验证码缓存 有效期30分钟 -->
+    <cache name="validationCodeCache"
+           maxElementsInMemory="2000"
+           eternal="false"
+           timeToIdleSeconds="0"
+           timeToLiveSeconds="1800"
+           overflowToDisk="true"
+           diskPersistent="true"
+           diskSpoolBufferSizeMB="16"/>
+    <!-- 发送缓存，每60秒只能发送一次 -->
+    <cache name="validationSendCache"
+           maxElementsInMemory="2000"
+           eternal="false"
+           timeToIdleSeconds="0"
+           timeToLiveSeconds="60"
+           overflowToDisk="true"
+           diskPersistent="true"
+           diskSpoolBufferSizeMB="16"/>
+    <!-- 验证失败缓存，锁定10分钟 -->
+    <cache name="validationRetryCache"
+           maxElementsInMemory="2000"
+           eternal="false"
+           timeToIdleSeconds="0"
+           timeToLiveSeconds="600"
+           overflowToDisk="true"
+           diskPersistent="true"
+           diskSpoolBufferSizeMB="16"/>
+</ehcache>

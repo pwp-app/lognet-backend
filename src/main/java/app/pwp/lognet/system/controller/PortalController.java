@@ -1,6 +1,5 @@
 package app.pwp.lognet.system.controller;
 
-import app.pwp.lognet.LognetApplication;
 import app.pwp.lognet.system.form.MailValidateForm;
 import app.pwp.lognet.system.form.UserLoginForm;
 import app.pwp.lognet.system.form.UserRegisterForm;
@@ -24,6 +23,7 @@ import org.apache.shiro.authc.*;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.subject.Subject;
+import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -46,10 +46,8 @@ public class PortalController {
     @Resource
     private ReCaptcha reCaptcha;
 
-    private CacheManager cacheManager = CacheManager.create(LognetApplication.class.getClassLoader().getResourceAsStream("ehcache/validation.xml"));
-    private Cache validationCodeCache = cacheManager.getCache("validationCodeCache");
-    private Cache validationSendCache = cacheManager.getCache("validationSendCache");
-    private Cache validationRetryCache = cacheManager.getCache("validationRetryCache");
+    @Resource
+    private EhCacheCacheManager cacheManager;
 
     @PostMapping("/login")
     public R login(@RequestBody @Valid UserLoginForm form, HttpServletRequest req) throws Exception {
@@ -127,6 +125,10 @@ public class PortalController {
         if (!Pattern.matches("^[_a-z0-9-]+(\\.[_a-z0-9-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,})", email)) {
             return R.badRequest("请提交合法的参数");
         }
+        CacheManager manager = cacheManager.getCacheManager();
+        Cache validationCodeCache = manager.getCache("validationCodeCache");
+        Cache validationSendCache = manager.getCache("validationSendCache");
+        Cache validationRetryCache = manager.getCache("validationRetryCache");
         // 检查是否已经禁止
         if (validationRetryCache.isKeyInCache("EMAIL_RETRY_" + email)) {
             Integer retry = (Integer) validationRetryCache.get("EMAIL_RETRY_" + email).getObjectValue();
@@ -154,8 +156,12 @@ public class PortalController {
 
     @PostMapping("/validate")
     public R validate(@RequestBody @Valid MailValidateForm form) {
-        // 检查是否已经被禁止
+        // 初始化
         Integer retry = -1;
+        CacheManager manager = cacheManager.getCacheManager();
+        Cache validationCodeCache = manager.getCache("validationCodeCache");
+        Cache validationRetryCache = manager.getCache("validationRetryCache");
+        // 检查是否已经被禁止
         if (validationRetryCache.isKeyInCache("EMAIL_RETRY_" + form.getEmail())) {
             Integer _retry = (Integer) validationRetryCache.get("EMAIL_RETRY_" + form.getEmail()).getObjectValue();
             if (_retry != null) {
@@ -184,7 +190,6 @@ public class PortalController {
             validationRetryCache.put(new Element("EMAIL_RETRY_" + form.getEmail(), retry));
             return R.error("验证失败");
         }
-
         return R.success("验证成功");
     }
 

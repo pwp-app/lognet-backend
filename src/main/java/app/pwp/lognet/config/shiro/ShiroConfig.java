@@ -1,7 +1,6 @@
 package app.pwp.lognet.config.shiro;
 
-import org.apache.shiro.authc.credential.CredentialsMatcher;
-import org.apache.shiro.cache.ehcache.EhCacheManager;
+import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
@@ -13,7 +12,6 @@ import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.SimpleCookie;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
-import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -26,32 +24,9 @@ import java.util.Properties;
 
 @Configuration
 public class ShiroConfig {
-    @Bean(name = "ehcache")
-    public EhCacheManagerFactoryBean ehCacheFactory(){
-        EhCacheManagerFactoryBean ehCacheFactory = new EhCacheManagerFactoryBean();
-        ehCacheFactory.setConfigLocation(new ClassPathResource("ehcache/shiro.xml"));
-        ehCacheFactory.setShared(true);
-        return ehCacheFactory;
-    }
-    @Bean
-    public EhCacheManager getEhCacheManager() {
-        EhCacheManager ehcacheManager = new EhCacheManager();
-        ehcacheManager.setCacheManager(ehCacheFactory().getObject());
-        return ehcacheManager;
-    }
-
-    @Bean
-    public CredentialsMatcher retryLimitCredentialsMatcher() {
-        RetryLimitCredentialsMatcher retryLimitCredentialsMatcher = new RetryLimitCredentialsMatcher(getEhCacheManager());
-        retryLimitCredentialsMatcher.setHashAlgorithmName("SHA-256");
-        retryLimitCredentialsMatcher.setHashIterations(32);
-        return retryLimitCredentialsMatcher;
-    }
-
     @Bean
     public Realm realm() {
         UserRealm realm = new UserRealm();
-        realm.setCredentialsMatcher(retryLimitCredentialsMatcher());
         return realm;
     }
 
@@ -82,7 +57,7 @@ public class ShiroConfig {
     public SecurityManager securityManager() throws IOException {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         securityManager.setRealm(realm());
-        securityManager.setCacheManager(getEhCacheManager());
+        securityManager.setCacheManager(new MemoryConstrainedCacheManager());
         securityManager.setSessionManager(sessionManager());
         securityManager.setRememberMeManager(rememberMeManager());
         return securityManager;
