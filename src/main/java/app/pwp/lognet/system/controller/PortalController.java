@@ -98,6 +98,13 @@ public class PortalController {
         if (!reCaptcha.verify(form.getToken()).get()) {
             return R.badRequest("系统检测到您可能为机器人，注册失败");
         }
+        // 检查占用
+        if (userService.existsByUsername(form.getUsername())) {
+            return R.error("很抱歉，该用户名已被占用");
+        }
+        if (userService.existsByMail(form.getEmail())) {
+            return R.error("很抱歉，您填写的电子邮箱已被占用");
+        }
         // 构造User
         User user = new User();
         user.setUsername(form.getUsername());
@@ -132,7 +139,9 @@ public class PortalController {
             return R.error("不能重复发送，请稍后再试");
         }
         // 检查是否为用户
-
+        if (!userService.existsByMail(email)) {
+            return R.error("提交的电子邮箱地址有误，请重试");
+        }
         // 生成一个六位数
         String code = String.valueOf(ValidationUtils.generateCode());
         validationCodeCache.put(new Element("EMAIL_CODE_" + email, code));
@@ -161,6 +170,10 @@ public class PortalController {
         if (!validationCodeCache.isKeyInCache("EMAIL_CODE_" + form.getEmail())) {
             return R.error("找不到对应的验证码");
         }
+        // 检查用户是否存在
+        if (!userService.existsByMail(form.getEmail())) {
+            return R.error("提交的电子邮箱地址有误，请重试");
+        }
         String code = (String) validationCodeCache.get("EMAIL_CODE_" + form.getEmail()).getObjectValue();
         if (!code.equals(form.getCode())) {
             if (retry < 0) {
@@ -171,6 +184,7 @@ public class PortalController {
             validationRetryCache.put(new Element("EMAIL_RETRY_" + form.getEmail(), retry));
             return R.error("验证失败");
         }
+
         return R.success("验证成功");
     }
 
