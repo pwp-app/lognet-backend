@@ -1,5 +1,7 @@
 package app.pwp.lognet.config.shiro;
 
+import org.apache.shiro.authc.credential.CredentialsMatcher;
+import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.mgt.SessionManager;
@@ -36,6 +38,14 @@ public class ShiroConfig {
         // 30天免登录
         simpleCookie.setMaxAge(2592000);
         return simpleCookie;
+    }
+
+    @Bean
+    public CredentialsMatcher hashedCredentialsMatcher() {
+        HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher();
+        hashedCredentialsMatcher.setHashAlgorithmName("SHA-256");
+        hashedCredentialsMatcher.setHashIterations(32);
+        return hashedCredentialsMatcher;
     }
 
     @Bean
