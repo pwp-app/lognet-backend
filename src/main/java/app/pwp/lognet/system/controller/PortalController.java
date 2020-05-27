@@ -45,10 +45,8 @@ public class PortalController {
     private RoleService roleService;
     @Resource
     private ReCaptcha reCaptcha;
-    @Resource
-    private MailSender mailSender;
 
-    private CacheManager cacheManager = CacheManager.create(LognetApplication.class.getClassLoader().getResourceAsStream("ehcache.xml"));
+    private CacheManager cacheManager = CacheManager.create(LognetApplication.class.getClassLoader().getResourceAsStream("ehcache/validation.xml"));
     private Cache validationCodeCache = cacheManager.getCache("validationCodeCache");
     private Cache validationSendCache = cacheManager.getCache("validationSendCache");
     private Cache validationRetryCache = cacheManager.getCache("validationRetryCache");
@@ -141,7 +139,7 @@ public class PortalController {
         validationSendCache.put(new Element("EMAIL_SEND_" + email, null));
         HashMap<String, String> mailParams = new HashMap<>();
         mailParams.put("code", code);
-        mailSender.sendHTMLMail(email, "Lognet - 邮箱验证", MailTemplate.build("validation", mailParams));
+        MailSender.sendHTMLMail(email, "Lognet - 邮箱验证", MailTemplate.build("validation", mailParams));
         return R.success("发送成功");
     }
 

@@ -20,55 +20,17 @@
             LRU，Least Recently Used，最近最少使用的，缓存的元素有一个时间戳，当缓存容量满了，而又需要腾出地方来缓存新的元素的时候，那么现有缓存元素中时间戳离当前时间最远的元素将被清出缓存。
     -->
     <defaultCache
+            maxElementsInMemory="1000"
+            maxElementsOnDisk="3000"
             eternal="true"
             overflowToDisk="true"
             diskPersistent="true"
             diskSpoolBufferSizeMB="32"
     />
-    <!-- 普通查询缓存 -->
-    <cache name="queryCache"
-           maxElementsInMemory="1000"
-           maxElementsOnDisk="5000"
-           eternal="true"
-           overflowToDisk="true"
-           diskPersistent="true"
-           diskSpoolBufferSizeMB="32"
-        >
-    </cache>
-    <!-- 邮箱验证码缓存 有效期30分钟 -->
-    <cache name="validationCodeCache"
-           maxElementsInMemory="1000"
-           eternal="false"
-           timeToIdleSeconds="0"
-           timeToLiveSeconds="1800"
-           overflowToDisk="true"
-           diskPersistent="true"
-           diskSpoolBufferSizeMB="16">
-    </cache>
-    <!-- 发送缓存，每60秒只能发送一次 -->
-    <cache name="validationSendCache"
-           maxElementsInMemory="1000"
-           eternal="false"
-           timeToIdleSeconds="0"
-           timeToLiveSeconds="60"
-           overflowToDisk="true"
-           diskPersistent="true"
-           diskSpoolBufferSizeMB="16">
-    </cache>
-    <!-- 验证失败缓存，锁定10分钟 -->
-    <cache name="validationRetryCache"
-           maxElementsInMemory="1000"
-           eternal="false"
-           timeToIdleSeconds="0"
-           timeToLiveSeconds="600"
-           overflowToDisk="true"
-           diskPersistent="true"
-           diskSpoolBufferSizeMB="16">
-    </cache>
     <!-- 登录失败缓存，锁定10分钟 -->
     <cache name="passwordRetryCache"
-           maxElementsInMemory="500"
-           maxElementsOnDisk="2000"
+           maxElementsInMemory="1000"
+           maxElementsOnDisk="3000"
            eternal="false"
            timeToIdleSeconds="0"
            timeToLiveSeconds="600"

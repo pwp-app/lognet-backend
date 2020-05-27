@@ -1,10 +1,7 @@
 package app.pwp.lognet.config.shiro;
 
-import app.pwp.lognet.LognetApplication;
-import net.sf.ehcache.CacheManager;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.cache.ehcache.EhCacheManager;
-import org.apache.shiro.io.ResourceUtils;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
@@ -16,37 +13,36 @@ import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.SimpleCookie;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 
 import javax.servlet.Filter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
 @Configuration
 public class ShiroConfig {
+    @Bean(name = "ehcache")
+    public EhCacheManagerFactoryBean ehCacheFactory(){
+        EhCacheManagerFactoryBean ehCacheFactory = new EhCacheManagerFactoryBean();
+        ehCacheFactory.setConfigLocation(new ClassPathResource("ehcache/shiro.xml"));
+        ehCacheFactory.setShared(true);
+        return ehCacheFactory;
+    }
     @Bean
-    public EhCacheManager ehCacheManager() {
-        CacheManager cm = CacheManager.getCacheManager("es");
-        if (cm == null) {
-            try {
-                cm = CacheManager.create(ResourceUtils.getInputStreamForPath("classpath:ehcache.xml"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        EhCacheManager cacheManager = new EhCacheManager();
-        cacheManager.setCacheManager(cm);
-        return cacheManager;
+    public EhCacheManager getEhCacheManager() {
+        EhCacheManager ehcacheManager = new EhCacheManager();
+        ehcacheManager.setCacheManager(ehCacheFactory().getObject());
+        return ehcacheManager;
     }
 
     @Bean
     public CredentialsMatcher retryLimitCredentialsMatcher() {
-        RetryLimitCredentialsMatcher retryLimitCredentialsMatcher = new RetryLimitCredentialsMatcher(ehCacheManager());
+        RetryLimitCredentialsMatcher retryLimitCredentialsMatcher = new RetryLimitCredentialsMatcher(getEhCacheManager());
         retryLimitCredentialsMatcher.setHashAlgorithmName("SHA-256");
         retryLimitCredentialsMatcher.setHashIterations(32);
         return retryLimitCredentialsMatcher;
@@ -67,14 +63,13 @@ public class ShiroConfig {
         return simpleCookie;
     }
 
-    @Value(value = "${shiro.key}")
-    private String COOKIE_CIPHER_KEY;
-
     @Bean
     public CookieRememberMeManager rememberMeManager() throws IOException {
         CookieRememberMeManager cookieRememberMeManager = new CookieRememberMeManager();
         cookieRememberMeManager.setCookie(rememberMeCookie());
-        cookieRememberMeManager.setCipherKey(COOKIE_CIPHER_KEY.getBytes());
+        Properties properties = new Properties();
+        properties.load(new ClassPathResource("properties/shiro.properties").getInputStream());
+        cookieRememberMeManager.setCipherKey(properties.getProperty("key").getBytes());
         return cookieRememberMeManager;
     }
 
@@ -87,7 +82,7 @@ public class ShiroConfig {
     public SecurityManager securityManager() throws IOException {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         securityManager.setRealm(realm());
-        securityManager.setCacheManager(ehCacheManager());
+        securityManager.setCacheManager(getEhCacheManager());
         securityManager.setSessionManager(sessionManager());
         securityManager.setRememberMeManager(rememberMeManager());
         return securityManager;
