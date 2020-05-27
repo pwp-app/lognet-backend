@@ -9,15 +9,14 @@ import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-@Component
 public class MailSender {
 
-    private String from = "\"Lognet\" <validaton@pwp.app>";
+    private static final String from = "\"Lognet\" <validaton@pwp.app>";
 
     @Resource
-    private JavaMailSender mailSender;
+    private static JavaMailSender mailSender;
 
-    public void sendSimpleMail(String to, String subject, String content) {
+    public static void sendSimpleMail(String to, String subject, String content) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
         message.setSubject(subject);
@@ -26,7 +25,7 @@ public class MailSender {
         mailSender.send(message);
     }
 
-    public void sendHTMLMail(String to, String subject, String content) throws MessagingException {
+    public static void sendHTMLMail(String to, String subject, String content) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         helper.setFrom(from);
