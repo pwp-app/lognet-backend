@@ -13,7 +13,7 @@ import app.pwp.lognet.system.service.UserService;
 import app.pwp.lognet.utils.auth.ValidationUtils;
 import app.pwp.lognet.utils.common.R;
 import app.pwp.lognet.utils.geo.CZIPStringUtils;
-import app.pwp.lognet.utils.mail.MailSender;
+import app.pwp.lognet.utils.mail.MailSendUtils;
 import app.pwp.lognet.utils.mail.MailTemplate;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -45,6 +45,8 @@ public class PortalController {
     private RoleService roleService;
     @Resource
     private ReCaptcha reCaptcha;
+    @Resource
+    private MailSendUtils mailSendUtils;
 
     @Resource
     private EhCacheCacheManager cacheManager;
@@ -54,7 +56,16 @@ public class PortalController {
         Subject subject = SecurityUtils.getSubject();
         // 用户重复登录了，返回成功放行
         if (subject.isAuthenticated()){
-            return R.success("用户已登录");
+            User user = (User) subject.getPrincipal();
+            if (user.getId() != null) {
+                user = userService.getById(user.getId());
+            } else {
+                user = userService.getByUsername(user.getUsername());
+            }
+            if (user != null) {
+                UserResponse response = new UserResponse(user.getId(), user.getUsername(), user.getEmail(), roleService.getById(user.getRoleId()));
+                return R.success("用户已登录", response);
+            }
         }
         UsernamePasswordToken token = new UsernamePasswordToken(form.getUsername(), form.getPassword());
         token.setRememberMe(form.isRememberMe());
@@ -62,8 +73,6 @@ public class PortalController {
             subject.login(token);
         } catch (UnknownAccountException | IncorrectCredentialsException e) {
             return R.unauth("用户名或密码不正确");
-        } catch (ExcessiveAttemptsException eae) {
-            return R.error("登录错误次数过多，请稍后再试");
         } catch (AuthenticationException ae) {
             return R.error("服务器出现错误，登录失败");
         }
@@ -130,15 +139,22 @@ public class PortalController {
         Cache validationSendCache = manager.getCache("validationSendCache");
         Cache validationRetryCache = manager.getCache("validationRetryCache");
         // 检查是否已经禁止
-        if (validationRetryCache.isKeyInCache("EMAIL_RETRY_" + email)) {
-            Integer retry = (Integer) validationRetryCache.get("EMAIL_RETRY_" + email).getObjectValue();
-            if (retry >= 10) {
-                return R.error("该帐户暂时不能进行验证，请稍后再试");
+        try {
+            Element retry_element = validationRetryCache.get("EMAIL_RETRY_" + email);
+            if (retry_element != null) {
+                Integer retry = (Integer) retry_element.getObjectValue();
+                if (retry >= 10) {
+                    return R.error("该帐户暂时不能进行验证，请稍后再试");
+                }
             }
-        }
+        } catch (IllegalStateException ise_retry) { /* do nothing */ }
         // 检查是否发送冷却
         if (validationSendCache.isKeyInCache("EMAIL_SEND_" + email)) {
-            return R.error("不能重复发送，请稍后再试");
+            try {
+                validationSendCache.getQuiet("EMAIL_SEND_" + email);
+            } catch (IllegalStateException ise_send) {
+                return R.error("不能重复发送，请稍后再试");
+            }
         }
         // 检查是否为用户
         if (!userService.existsByMail(email)) {
@@ -150,7 +166,7 @@ public class PortalController {
         validationSendCache.put(new Element("EMAIL_SEND_" + email, null));
         HashMap<String, String> mailParams = new HashMap<>();
         mailParams.put("code", code);
-        MailSender.sendHTMLMail(email, "Lognet - 邮箱验证", MailTemplate.build("validation", mailParams));
+        mailSendUtils.sendHTMLMail(email, "Lognet - 邮箱验证", MailTemplate.build("validation", mailParams));
         return R.success("发送成功");
     }
 
@@ -162,25 +178,30 @@ public class PortalController {
         Cache validationCodeCache = manager.getCache("validationCodeCache");
         Cache validationRetryCache = manager.getCache("validationRetryCache");
         // 检查是否已经被禁止
-        if (validationRetryCache.isKeyInCache("EMAIL_RETRY_" + form.getEmail())) {
-            Integer _retry = (Integer) validationRetryCache.get("EMAIL_RETRY_" + form.getEmail()).getObjectValue();
-            if (_retry != null) {
-                if ( _retry >= 10) {
+        try {
+            Element retry_element = validationRetryCache.get("EMAIL_RETRY_" + form.getEmail());
+            if (retry_element != null) {
+                retry = (Integer) retry_element.getObjectValue();
+                if (retry >= 10) {
                     return R.error("该帐户暂时不能进行验证，请稍后再试");
-                } else {
-                    retry = _retry;
                 }
             }
-        }
-        // 检查是否有对应的Code
-        if (!validationCodeCache.isKeyInCache("EMAIL_CODE_" + form.getEmail())) {
-            return R.error("找不到对应的验证码");
+        } catch (IllegalStateException ise_retry) { /* do nothing */ }
+        String code;
+        try {
+            Element code_element = validationCodeCache.get("EMAIL_CODE_" + form.getEmail());
+            if (code_element == null) {
+                return R.error("找不到对应的验证码，请提交正确的参数");
+            }
+            code = (String) code_element.getObjectValue();
+        } catch (IllegalStateException ise) {
+            return R.error("找不到对应的验证码，请提交正确的参数");
         }
         // 检查用户是否存在
-        if (!userService.existsByMail(form.getEmail())) {
+        User user = userService.getByMail(form.getEmail());
+        if (user == null) {
             return R.error("提交的电子邮箱地址有误，请重试");
         }
-        String code = (String) validationCodeCache.get("EMAIL_CODE_" + form.getEmail()).getObjectValue();
         if (!code.equals(form.getCode())) {
             if (retry < 0) {
                 retry = 1;
@@ -190,7 +211,15 @@ public class PortalController {
             validationRetryCache.put(new Element("EMAIL_RETRY_" + form.getEmail(), retry));
             return R.error("验证失败");
         }
-        return R.success("验证成功");
+        // 验证成功，销毁Code
+        validationCodeCache.remove("EMAIL_CODE_" + form.getEmail());
+        // 更新用户信息
+        user.setRoleId(roleService.getByName("user").getId());
+        if (userService.update(user)) {
+            return R.success("验证成功");
+        } else {
+            return R.error("更新用户信息失败，请重试");
+        }
     }
 
     @GetMapping("/logout")

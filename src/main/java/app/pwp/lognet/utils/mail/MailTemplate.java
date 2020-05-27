@@ -26,7 +26,7 @@ public class MailTemplate {
         for (Map.Entry<String, String> entry: params.entrySet()) {
             String key = "${" + entry.getKey() + "}";
             while (ret.contains(key)) {
-                ret.replace(key, entry.getValue());
+                ret = ret.replace(key, entry.getValue());
             }
         }
         return ret;

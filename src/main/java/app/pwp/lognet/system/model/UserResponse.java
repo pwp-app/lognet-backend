@@ -1,6 +1,8 @@
 package app.pwp.lognet.system.model;
 
-public class UserResponse {
+import java.io.Serializable;
+
+public class UserResponse implements Serializable {
     private long uid;
     private String username;
     private String email;

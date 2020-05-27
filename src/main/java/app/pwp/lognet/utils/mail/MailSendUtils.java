@@ -3,20 +3,23 @@ package app.pwp.lognet.utils.mail;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-public class MailSender {
+@Component
+public class MailSendUtils {
 
-    private static final String from = "\"Lognet\" <validaton@pwp.app>";
+    private final String from = "\"Lognet\" <validation@pwp.app>";
 
     @Resource
-    private static JavaMailSender mailSender;
+    private JavaMailSender mailSender;
 
-    public static void sendSimpleMail(String to, String subject, String content) {
+    @Async
+    public void sendSimpleMail(String to, String subject, String content) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
         message.setSubject(subject);
@@ -25,7 +28,8 @@ public class MailSender {
         mailSender.send(message);
     }
 
-    public static void sendHTMLMail(String to, String subject, String content) throws MessagingException {
+    @Async
+    public void sendHTMLMail(String to, String subject, String content) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         helper.setFrom(from);

@@ -20,11 +20,11 @@ public class RoleService extends BaseService<Role> {
         Role role = new Role(name, level);
         return this.baseDao.add(role);
     }
-    @Cacheable(value = "queryCache", key = "'role_' + #id")
+    @Cacheable(value = "queryCache", key = "'role_' + #id", unless = "#result != null")
     public Role getById(long id) {
         return this.baseDao.getById(Role.class, id);
     }
-    @Cacheable(value = "queryCache", key = "'role_' + #name")
+    @Cacheable(value = "queryCache", key = "'role_' + #name", unless = "#result != null")
     public Role getByName(String name) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("name", name);
