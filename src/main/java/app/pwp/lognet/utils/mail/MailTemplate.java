@@ -2,6 +2,7 @@ package app.pwp.lognet.utils.mail;
 
 import app.pwp.lognet.LognetApplication;
 import org.apache.commons.io.IOUtils;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -13,7 +14,7 @@ public class MailTemplate {
         // 读取邮件模板
         String[] names = { "validation" };
         for (String name : names) {
-            templates.put(name, IOUtils.toString(LognetApplication.class.getClassLoader().getResourceAsStream("classpath:mail_templates/template_" + name + ".html"), "UTF-8"));
+            templates.put(name, IOUtils.toString(new ClassPathResource("mail_templates/template_" + name + ".html").getInputStream(), "UTF-8"));
         }
     }
     // 构造邮件HTML

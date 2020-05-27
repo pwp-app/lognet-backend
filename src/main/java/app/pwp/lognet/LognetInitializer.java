@@ -41,6 +41,6 @@ public class LognetInitializer implements ApplicationRunner {
         log.info("CZIP Database init finished.");
         log.info("Start initializing mail templates...");
         MailTemplate.init();
-        log.info("Mail Templates ini finished.");
+        log.info("Mail Templates init finished.");
     }
 }
