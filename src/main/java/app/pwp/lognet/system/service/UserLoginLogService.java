@@ -8,6 +8,7 @@ import app.pwp.lognet.utils.geo.CZIP;
 import app.pwp.lognet.utils.geo.CZIPStringUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,7 @@ public class UserLoginLogService extends BaseService<UserLoginLog> {
         return this.baseDao.add(log);
     }
     // 获取近期的登录日志
+    @Cacheable(value = "queryCache", key = "'user_loginlog_' + #uid")
     public List<UserLoginLog> getRecent(long uid) {
         Session session = this.baseDao.getHibernateSession();
         Query<UserLoginLog> query = session.createQuery("FROM UserLoginLog WHERE uid = :uid ORDER BY createTime desc");
