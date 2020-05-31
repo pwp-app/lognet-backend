@@ -6,13 +6,13 @@ import app.pwp.lognet.utils.geo.Alimap;
 import app.pwp.lognet.utils.geo.AlimapLocation;
 import app.pwp.lognet.utils.geo.CZIP;
 import app.pwp.lognet.utils.geo.CZIPStringUtils;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
+import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.concurrent.ListenableFuture;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -36,5 +36,13 @@ public class UserLoginLogService extends BaseService<UserLoginLog> {
             }
         }
         return this.baseDao.add(log);
+    }
+    // 获取近期的登录日志
+    public List<UserLoginLog> getRecent(long uid) {
+        Session session = this.baseDao.getHibernateSession();
+        Query<UserLoginLog> query = session.createQuery("FROM UserLoginLog WHERE uid = :uid ORDER BY createTime desc");
+        query.setParameter("uid", uid);
+        query.setMaxResults(10);
+        return query.list();
     }
 }
