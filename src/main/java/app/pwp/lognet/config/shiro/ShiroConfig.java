@@ -94,7 +94,6 @@ public class ShiroConfig {
         shiroFilter.setFilters(filterMap);
         // 配置不会被拦截的api
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
-        filterChainDefinitionMap.put("/portal/logout", "logout");
         // 允许无需权限访问的路径
         String[] anonPaths = {
                 "/error/**",
