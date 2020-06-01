@@ -92,6 +92,10 @@ public class PortalController {
         userLoginLogService.create(user.getId(), CZIPStringUtils.getIPAddress(req));
         // 构造返回的数据
         UserResponse response = new UserResponse(user.getId(), user.getUsername(), user.getEmail(), roleService.getById(user.getRoleId()));
+        // 清理登录记录的缓存
+        CacheManager manager = cacheManager.getCacheManager();
+        Cache queryCache = manager.getCache("queryCache");
+        queryCache.remove("user_loginlog_" + user.getId());
         return R.success("登录成功", response);
     }
 

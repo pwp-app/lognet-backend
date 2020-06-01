@@ -12,6 +12,7 @@ import app.pwp.lognet.utils.common.R;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.SimpleHash;
+import org.apache.shiro.subject.Subject;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -76,6 +77,11 @@ public class UserController {
         user.setSalt(salt);
         user.setPassword(newPasswordHash);
         if (userService.update(user)) {
+            // 更改成功，强行登出让用户重新登录
+            Subject subject = SecurityUtils.getSubject();
+            if (subject.isAuthenticated() || subject.isRemembered()) {
+                subject.logout();
+            }
             return R.success("更改成功");
         } else {
             return R.error("更改失败");
