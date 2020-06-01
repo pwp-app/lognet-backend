@@ -31,11 +31,11 @@ public class ReCaptcha {
         try {
             HttpResult res = Http.doPost(VERIFY_URL, params);
             if (res.getCode() != 200 || res.getBody() == null) {
-                return new AsyncResult<>(false);
+                throw new RuntimeException("与 reCAPTCHA 服务器通讯失败");
             }
             JSONObject parsedObject = JSON.parseObject(res.getBody());
             if (!(boolean) parsedObject.get("success")) {
-                return new AsyncResult<>(false);
+                throw new RuntimeException("reCAPTCHA 验证失败");
             }
             //return new AsyncResult<>(((BigDecimal) parsedObject.get("score")).doubleValue() >= THRESHOLD);
             return new AsyncResult<>(true);

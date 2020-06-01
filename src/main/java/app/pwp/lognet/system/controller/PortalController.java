@@ -1,5 +1,6 @@
 package app.pwp.lognet.system.controller;
 
+import app.pwp.lognet.system.form.ForgetPasswordForm;
 import app.pwp.lognet.system.form.MailValidateForm;
 import app.pwp.lognet.system.form.UserLoginForm;
 import app.pwp.lognet.system.form.UserRegisterForm;
@@ -77,8 +78,12 @@ public class PortalController {
             return R.error("服务器出现错误，登录失败");
         }
         // reCAPTCHA
-        if (!reCaptcha.verify(form.getToken()).get()) {
-            return R.badRequest("系统检测到您可能为机器人，登录失败");
+        try {
+            if (!reCaptcha.verify(form.getToken()).get()) {
+                return R.badRequest("系统检测到您可能为机器人，登录失败");
+            }
+        } catch (RuntimeException ex) {
+            return R.error(ex.getMessage());
         }
         // 验证Subject是否为已登录状态
         if (!subject.isAuthenticated()) {
@@ -106,8 +111,12 @@ public class PortalController {
             return R.badRequest("两次输入的密码不一致，请检查后重试");
         }
         // reCAPTCHA
-        if (!reCaptcha.verify(form.getToken()).get()) {
-            return R.badRequest("系统检测到您可能为机器人，注册失败");
+        try {
+            if (!reCaptcha.verify(form.getToken()).get()) {
+                return R.badRequest("系统检测到您可能为机器人，登录失败");
+            }
+        } catch (RuntimeException ex) {
+            return R.error(ex.getMessage());
         }
         // 检查占用
         if (userService.existsByUsername(form.getUsername())) {
@@ -132,9 +141,41 @@ public class PortalController {
         return R.success("注册成功");
     }
 
+    private String getEmailSendPrefix(String type) {
+        return "EMAIL_SEND_" + ("forget".equals(type) ? "FORGET_" : "");
+    }
+
+    private String getEmailCodePrefix(String type) {
+        return "EMAIL_CODE_" + ("forget".equals(type) ? "FORGET_" : "");
+    }
+
+    private String getEmailTitle(String type) {
+        switch(type) {
+            case "forget":
+                return "Lognet - 找回密码";
+            default:
+                return "Lognet - 邮箱验证";
+        }
+    }
+
+    private String getEmailTemplate(String type) {
+        switch (type) {
+            case "forget":
+                return "validation_forget";
+            default:
+                return "validation";
+        }
+    }
+
     @GetMapping("/sendValidation")
-    public R sendValidation(String email) throws MessagingException {
-        // 正则判断是否有效
+    public R sendValidation(String email, String type) throws MessagingException {
+        // 判断是否有效
+        if (email == null || email.length() < 1) {
+            return R.badRequest("请提交合法的参数");
+        }
+        if (type == null || type.length() < 1 || (!"normal".equals(type) && !"forget".equals(type))) {
+            return R.badRequest("请提交合法的参数");
+        }
         if (!Pattern.matches("^[_a-z0-9-]+(\\.[_a-z0-9-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,})", email)) {
             return R.badRequest("请提交合法的参数");
         }
@@ -153,29 +194,31 @@ public class PortalController {
             }
         } catch (IllegalStateException ise_retry) { /* do nothing */ }
         // 检查是否发送冷却
-        if (validationSendCache.isKeyInCache("EMAIL_SEND_" + email)) {
+        if (validationSendCache.isKeyInCache(getEmailSendPrefix(type) + email)) {
             try {
-                validationSendCache.getQuiet("EMAIL_SEND_" + email);
+                validationSendCache.getQuiet(getEmailSendPrefix(type) + email);
             } catch (IllegalStateException ise_send) {
                 return R.error("不能重复发送，请稍后再试");
             }
         }
         // 检查是否为用户
         if (!userService.existsByMail(email)) {
-            return R.error("提交的电子邮箱地址有误，请重试");
+            if (type.equals("forget")) {
+                return R.error("找不到该用户，请检查您输入的邮箱地址");
+            }
+            return R.error("提交的邮箱地址有误，请重试");
         }
         // 生成一个六位数
         String code = String.valueOf(ValidationUtils.generateCode());
-        validationCodeCache.put(new Element("EMAIL_CODE_" + email, code));
-        validationSendCache.put(new Element("EMAIL_SEND_" + email, null));
+        validationCodeCache.put(new Element(getEmailCodePrefix(type) + email, code));
+        validationSendCache.put(new Element(getEmailSendPrefix(type) + email, null));
         HashMap<String, String> mailParams = new HashMap<>();
         mailParams.put("code", code);
-        mailSendUtils.sendHTMLMail(email, "Lognet - 邮箱验证", MailTemplate.build("validation", mailParams));
+        mailSendUtils.sendHTMLMail(email, getEmailTitle(type), MailTemplate.build(getEmailTemplate(type), mailParams));
         return R.success("发送成功");
     }
 
-    @PostMapping("/validate")
-    public R validate(@RequestBody @Valid MailValidateForm form) {
+    private R validateCode(String type, String email, String code) {
         // 初始化
         Integer retry = -1;
         CacheManager manager = cacheManager.getCacheManager();
@@ -183,7 +226,7 @@ public class PortalController {
         Cache validationRetryCache = manager.getCache("validationRetryCache");
         // 检查是否已经被禁止
         try {
-            Element retry_element = validationRetryCache.get("EMAIL_RETRY_" + form.getEmail());
+            Element retry_element = validationRetryCache.get("EMAIL_RETRY_" + email);
             if (retry_element != null) {
                 retry = (Integer) retry_element.getObjectValue();
                 if (retry >= 10) {
@@ -191,34 +234,70 @@ public class PortalController {
                 }
             }
         } catch (IllegalStateException ise_retry) { /* do nothing */ }
-        String code;
+        String cacheCode;
         try {
-            Element code_element = validationCodeCache.get("EMAIL_CODE_" + form.getEmail());
+            Element code_element = validationCodeCache.get(getEmailCodePrefix(type) + email);
             if (code_element == null) {
                 return R.error("找不到对应的验证码，请提交正确的参数");
             }
-            code = (String) code_element.getObjectValue();
+            cacheCode = (String) code_element.getObjectValue();
         } catch (IllegalStateException ise) {
             return R.error("找不到对应的验证码，请提交正确的参数");
         }
-        // 检查用户是否存在
-        User user = userService.getByMail(form.getEmail());
-        if (user == null) {
-            return R.error("提交的电子邮箱地址有误，请重试");
-        }
-        if (!code.equals(form.getCode())) {
+        if (!cacheCode.equals(code)) {
             if (retry < 0) {
                 retry = 1;
             } else {
                 retry++;
             }
-            validationRetryCache.put(new Element("EMAIL_RETRY_" + form.getEmail(), retry));
-            return R.error("验证失败");
+            validationRetryCache.put(new Element("EMAIL_RETRY_" + email, retry));
+            return R.error("提交的验证码有误，请重试");
         }
         // 验证成功，销毁Code
-        validationCodeCache.remove("EMAIL_CODE_" + form.getEmail());
+        validationCodeCache.remove(getEmailCodePrefix(type) + email);
+        return R.success();
+    }
+
+    @PostMapping("/validate")
+    public R validate(@RequestBody @Valid MailValidateForm form) {
+        R r = validateCode("normal", form.getEmail(), form.getCode());
+        if (r.getCode() != 200) {
+            return r;
+        }
+        // 检查用户是否存在
+        User user = userService.getByMail(form.getEmail());
+        if (user == null) {
+            return R.error("提交的邮箱地址有误，请重试");
+        }
         // 更新用户信息
         user.setRoleId(roleService.getByName("user").getId());
+        if (userService.update(user)) {
+            return R.success("验证成功");
+        } else {
+            return R.error("更新用户信息失败，请重试");
+        }
+    }
+
+    @PostMapping("/validateForget")
+    public R validateForget(@RequestBody @Valid ForgetPasswordForm form) {
+        // 参数校验
+        if (!form.getNewPassword().equals(form.getNewConfirmPassword())) {
+            return R.badRequest("两次输入的密码不一致，请重试");
+        }
+        // 验证码校验
+        R r = validateCode("forget", form.getEmail(), form.getCode());
+        if (r.getCode() != 200) {
+            return r;
+        }
+        // 检查用户是否存在
+        User user = userService.getByMail(form.getEmail());
+        if (user == null) {
+            return R.error("提交的邮箱地址有误，请重试");
+        }
+        // 更新用户信息
+        String salt = new SecureRandomNumberGenerator().nextBytes().toHex();
+        user.setPassword(new SimpleHash("SHA-256", form.getNewPassword(), salt, 32).toHex());
+        user.setSalt(salt);
         if (userService.update(user)) {
             return R.success("验证成功");
         } else {

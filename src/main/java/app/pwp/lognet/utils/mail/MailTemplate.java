@@ -12,7 +12,7 @@ public class MailTemplate {
     private static HashMap<String, String> templates = new HashMap<>();
     public static void init() throws IOException {
         // 读取邮件模板
-        String[] names = { "validation" };
+        String[] names = { "validation", "validation_forget" };
         for (String name : names) {
             templates.put(name, IOUtils.toString(new ClassPathResource("mail_templates/template_" + name + ".html").getInputStream(), "UTF-8"));
         }
