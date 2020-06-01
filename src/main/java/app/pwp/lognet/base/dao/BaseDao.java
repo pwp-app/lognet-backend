@@ -196,6 +196,17 @@ public class BaseDao<T> {
         return t;
     }
 
+    public T getById(Class clazz, long id) {
+        T t;
+        try {
+            t = (T) this.getHibernateSession().get(clazz, id);
+        } catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+        return t;
+    }
+
     public T getById(Class clazz, int id) {
         T t;
         try {
