@@ -65,10 +65,22 @@ public class BaseDao<T> {
         return flag;
     }
 
-    public long countBySession(String hql, HashMap<String, Object> params) {
-        Session session = this.getHibernateSession();
+    public boolean removeBySession(String hql, HashMap<String, Object> params) {
         try {
-            Query<Long> query = session.createQuery(hql);
+            Query query = this.getHibernateSession().createQuery(hql);
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                query.setParameter(entry.getKey(), entry.getValue());
+            }
+            return query.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public long countBySession(String hql, HashMap<String, Object> params) {
+        try {
+            Query<Long> query = this.getHibernateSession().createQuery(hql);
             for (Map.Entry<String, Object> entry : params.entrySet()) {
                 query.setParameter(entry.getKey(), entry.getValue());
             }
@@ -99,11 +111,68 @@ public class BaseDao<T> {
     }
 
     public List<T> showPage(String hql, int currentPage, int pageSize) {
+        try {
+            Query<T> query =  this.getHibernateSession().createQuery(hql);
+            query.setFirstResult((currentPage - 1) * pageSize).setMaxResults(pageSize);
+            return query.list();
+        } catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public List<T> showPage(String hql, HashMap<String, Object> params, int currentPage, int pageSize) {
+        try {
+            Query<T> query =  this.getHibernateSession().createQuery(hql);
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                query.setParameter(entry.getKey(), entry.getValue());
+            }
+            query.setFirstResult((currentPage - 1) * pageSize).setMaxResults(pageSize);
+            return query.list();
+        } catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public HashMap<String, Object> showPageWithTotal(String hql, int currentPage, int pageSize) {
         Session session = this.getHibernateSession();
         try {
             Query<T> query =  session.createQuery(hql);
             query.setFirstResult((currentPage - 1) * pageSize).setMaxResults(pageSize);
-            return query.list();
+            List<T> results = query.list();
+            HashMap<String, Object> response = new HashMap<>();
+            response.put("data", results);
+            Query<Long> count_query =  session.createQuery("SELECT count(*) " + hql);
+            count_query.setMaxResults(1);
+            Long count = count_query.uniqueResult();
+            response.put("total", count);
+            return response;
+        } catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public HashMap<String, Object> showPageWithTotal(String hql, HashMap<String, Object> params, int currentPage, int pageSize) {
+        Session session = this.getHibernateSession();
+        try {
+            Query<T> query =  session.createQuery(hql);
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                query.setParameter(entry.getKey(), entry.getValue());
+            }
+            query.setFirstResult((currentPage - 1) * pageSize).setMaxResults(pageSize);
+            List<T> results = query.list();
+            HashMap<String, Object> response = new HashMap<>();
+            response.put("data", results);
+            Query<Long> count_query =  session.createQuery("SELECT count(*) " + hql);
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                count_query.setParameter(entry.getKey(), entry.getValue());
+            }
+            count_query.setMaxResults(1);
+            Long count = count_query.uniqueResult();
+            response.put("total", count);
+            return response;
         } catch (Exception e){
             e.printStackTrace();
             return null;
@@ -138,9 +207,8 @@ public class BaseDao<T> {
     }
 
     public T getBySession(String hql, HashMap<String, Object> params) {
-        Session session = this.getHibernateSession();
         try {
-            Query<T> query = session.createQuery(hql);
+            Query<T> query = this.getHibernateSession().createQuery(hql);
             for (Map.Entry<String, Object> entry : params.entrySet()) {
                 query.setParameter(entry.getKey(), entry.getValue());
             }
@@ -230,7 +298,7 @@ public class BaseDao<T> {
         return criteria.list();
     }
 
-    public <T> boolean removeEntity(T entity) {
+    public boolean removeEntity(T entity) {
         try {
             this.getHibernateSession().delete(entity);
         } catch (Exception e){
@@ -240,7 +308,7 @@ public class BaseDao<T> {
         return true;
     }
 
-    public <T> boolean updateEntity(T entity) {
+    public boolean updateEntity(T entity) {
         try {
             this.getHibernateSession().update(entity);
             return true;
@@ -251,17 +319,55 @@ public class BaseDao<T> {
     }
 
     public List<T> findByHql(String hql){
-        List<T> list;
         try{
-            list = (List<T>) this.getHibernateSession().createQuery(hql).list();
+            List<T> list = this.getHibernateSession().createQuery(hql).list();
+            return list;
         } catch (Exception e){
             e.printStackTrace();
             return null;
         }
-        return list;
     }
 
-    public <T> Integer addThenGetNumKey(T entity) {
+    public List<T> findBySession(String hql, HashMap<String, Object> params) {
+        try{
+            Query<T> query = this.getHibernateSession().createQuery(hql);
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                query.setParameter(entry.getKey(), entry.getValue());
+            }
+            return query.list();
+        } catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public List<Long> findIDBySession(String hql, HashMap<String, Object> params) {
+        try{
+            Query<Long> query = this.getHibernateSession().createQuery(hql);
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                query.setParameter(entry.getKey(), entry.getValue());
+            }
+            return query.list();
+        } catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public List<String> findUUIDBySession(String hql, HashMap<String, Object> params) {
+        try{
+            Query<String> query = this.getHibernateSession().createQuery(hql);
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                query.setParameter(entry.getKey(), entry.getValue());
+            }
+            return query.list();
+        } catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Integer addThenGetNumKey(T entity) {
         Integer id;
         try {
             id = (Integer) this.getHibernateSession().save(entity);
@@ -272,7 +378,7 @@ public class BaseDao<T> {
         return id;
     }
 
-    public <T> String addThenGetKey(T entity) {
+    public String addThenGetKey(T entity) {
         String id;
         try {
             id = (String) this.getHibernateSession().save(entity);
@@ -283,7 +389,7 @@ public class BaseDao<T> {
         return id;
     }
 
-    public <T> boolean add(T entity) {
+    public boolean add(T entity) {
         boolean flag = false;
         try {
             Serializable serializable = this.getHibernateSession().save(entity);
