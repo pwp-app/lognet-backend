@@ -1,15 +1,15 @@
 package app.pwp.lognet.app.controller;
 
+import app.pwp.lognet.app.form.SiteCreateForm;
+import app.pwp.lognet.app.form.SiteUpdateForm;
+import app.pwp.lognet.app.model.Site;
 import app.pwp.lognet.app.service.SiteService;
 import app.pwp.lognet.utils.auth.UserAuthUtils;
 import app.pwp.lognet.utils.common.R;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/site")
@@ -28,17 +28,67 @@ public class SiteController {
     }
 
     @PostMapping("/add")
-    public R add() {
-
+    public R add(@RequestBody @Valid SiteCreateForm form) {
+        Site site = new Site();
+        Long uid = userAuthUtils.getUid();
+        if (uid == null) {
+            return R.error("无法获取当前用户的信息");
+        }
+        site.setUid(uid);
+        site.setDomain(form.getDomain());
+        site.setDesc(form.getDesc());
+        if (this.siteService.add(site)) {
+            return R.success("添加成功");
+        } else {
+            return R.error("服务器错误，添加失败");
+        }
     }
 
     @PostMapping("/update")
-    public R update() {
-
+    public R update(@RequestBody @Valid SiteUpdateForm form) {
+        // 获取对应的site
+        Site site = siteService.getById(form.getId());
+        if (site == null) {
+            return R.error("无法获取站点的信息");
+        }
+        // 权限控制
+        Long uid = userAuthUtils.getUid();
+        if (uid == null) {
+            return R.error("无法获取当前用户的信息");
+        }
+        if (site.getUid() != uid) {
+            return R.unauth("无权访问");
+        }
+        // 更新信息
+        site.setDesc(form.getDesc());
+        if (siteService.update(site)) {
+            return R.success("信息更新成功");
+        } else {
+            return R.error("服务器错误，信息更新失败");
+        }
     }
 
     @PostMapping("/delete")
-    public R delete() {
-
+    public R delete(String id) {
+        if (id == null || id.length() < 1) {
+            return R.badRequest("请提交正确的参数");
+        }
+        Site site = siteService.getById(id);
+        if (site == null) {
+            return R.error("找不到对应的站点");
+        }
+        // 权限控制
+        Long uid = userAuthUtils.getUid();
+        if (uid == null) {
+            return R.error("无法获取当前用户的信息");
+        }
+        if (site.getUid() != uid) {
+            return R.unauth("无权访问");
+        }
+        if (siteService.deleteById(id)) {
+            return R.success("删除成功");
+        } else {
+            return R.error("服务器错误，删除失败");
+        }
     }
 }

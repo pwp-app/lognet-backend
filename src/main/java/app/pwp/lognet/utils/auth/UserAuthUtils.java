@@ -24,8 +24,11 @@ public class UserAuthUtils {
         return user;
     }
 
-    public long getUid() {
+    public Long getUid() {
         User user = (User) SecurityUtils.getSubject().getPrincipal();
+        if (user == null || user.getId() == null) {
+            return null;
+        }
         return user.getId();
     }
 }
