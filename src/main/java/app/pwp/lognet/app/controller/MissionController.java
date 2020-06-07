@@ -67,6 +67,28 @@ public class MissionController {
         return R.success(missionService.listBySite(siteId, page, pageSize));
     }
 
+    @GetMapping("/fetchInfo")
+    public R fetchInfo(String id) {
+        // 数据校验
+        if (id == null || id.length() < 1) {
+            return R.badRequest("请提交正确的参数");
+        }
+        // 权限检查
+        Long uid = userAuthUtils.getUid();
+        if (uid == null) {
+            return R.error("无法获取用户信息");
+        }
+        if (missionService.getUserId(id) != uid) {
+            return R.unauth("无权访问");
+        }
+        // 获取
+        Mission mission = missionService.getById(id);
+        if (mission == null) {
+            return R.error("无法获取对应的任务信息");
+        }
+        return R.success(mission);
+    }
+
     @PostMapping("/create")
     public R create(@RequestBody @Valid MissionCreateForm form) {
         // 权限检查

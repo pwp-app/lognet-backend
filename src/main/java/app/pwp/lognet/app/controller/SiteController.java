@@ -27,6 +27,26 @@ public class SiteController {
         return R.success(siteService.listByUser(userAuthUtils.getUid(), page, pageSize));
     }
 
+    @GetMapping("/fetchInfo")
+    public R fetchInfo(String id) {
+        // 数据校验
+        if (id == null || id.length() < 1) {
+            return R.badRequest("请提交正确的参数");
+        }
+        Site site = siteService.getById(id);
+        if (site == null) {
+            return R.error("无法获取对应的站点信息");
+        }
+        Long uid = userAuthUtils.getUid();
+        if (uid == null) {
+            return R.error("无法获取用户信息");
+        }
+        if (site.getUid() != uid) {
+            return R.unauth("无权访问");
+        }
+        return R.success(site);
+    }
+
     @PostMapping("/add")
     public R add(@RequestBody @Valid SiteCreateForm form) {
         Site site = new Site();
