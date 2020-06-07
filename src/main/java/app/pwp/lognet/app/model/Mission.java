@@ -17,7 +17,7 @@ public class Mission extends BaseUUIDEntity implements Serializable {
     private String name;
     // 描述
     @Column(length = 200)
-    private String desc;
+    private String description;
     // 任务可用期
     private Date startTime;
     private Date endTime;
@@ -40,12 +40,12 @@ public class Mission extends BaseUUIDEntity implements Serializable {
         this.name = name;
     }
 
-    public String getDesc() {
-        return desc;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDesc(String desc) {
-        this.desc = desc;
+    public void setDescription(String desc) {
+        this.description = desc;
     }
 
     public Date getStartTime() {

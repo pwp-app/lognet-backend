@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.Date;
-import java.util.HashMap;
 
 @RestController
 @RequestMapping("/mission")
@@ -79,7 +78,7 @@ public class MissionController {
         Mission mission = new Mission();
         mission.setSiteId(form.getSiteId());
         mission.setName(form.getName());
-        mission.setDesc(form.getDesc());
+        mission.setDescription(form.getDesc());
         mission.setStartTime(form.getStartTime());
         mission.setEndTime(form.getEndTime());
         // 创建任务
@@ -115,7 +114,7 @@ public class MissionController {
         }
         // 进行更新
         mission.setName(form.getName());
-        mission.setDesc(form.getDesc());
+        mission.setDescription(form.getDesc());
         mission.setStartTime(form.getStartTime());
         mission.setEndTime(form.getEndTime());
         if (missionService.update(mission)) {

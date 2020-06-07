@@ -16,7 +16,7 @@ public class Site extends BaseUUIDEntity implements Serializable {
     private String domain;
     // 描述
     @Column(length = 100)
-    private String desc;
+    private String description;
     // AppKey
     private String appKey;
     // 是否启用
@@ -38,12 +38,12 @@ public class Site extends BaseUUIDEntity implements Serializable {
         this.domain = domain;
     }
 
-    public String getDesc() {
-        return desc;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDesc(String desc) {
-        this.desc = desc;
+    public void setDescription(String desc) {
+        this.description = desc;
     }
 
     public String getAppKey() {

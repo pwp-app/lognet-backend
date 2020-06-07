@@ -3,11 +3,9 @@ package app.pwp.lognet.app.controller;
 import app.pwp.lognet.app.form.SiteCreateForm;
 import app.pwp.lognet.app.form.SiteUpdateForm;
 import app.pwp.lognet.app.model.Site;
-import app.pwp.lognet.app.service.ErrorLogService;
 import app.pwp.lognet.app.service.SiteService;
 import app.pwp.lognet.utils.auth.UserAuthUtils;
 import app.pwp.lognet.utils.common.R;
-import org.hibernate.validator.constraints.pl.REGON;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -38,7 +36,7 @@ public class SiteController {
         }
         site.setUid(uid);
         site.setDomain(form.getDomain());
-        site.setDesc(form.getDesc());
+        site.setDescription(form.getDesc());
         if (this.siteService.add(site)) {
             return R.success("添加成功");
         } else {
@@ -62,7 +60,7 @@ public class SiteController {
             return R.unauth("无权访问");
         }
         // 更新信息
-        site.setDesc(form.getDesc());
+        site.setDescription(form.getDesc());
         if (siteService.update(site)) {
             return R.success("信息更新成功");
         } else {
