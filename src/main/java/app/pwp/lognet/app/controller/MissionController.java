@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.HashMap;
 
 @RestController
@@ -91,6 +92,17 @@ public class MissionController {
 
     @PostMapping("/update")
     public R update(@RequestBody @Valid MissionUpdateForm form) {
+        // 校验
+        if (form.getEndTime() != null) {
+            if (form.getEndTime().getTime() <= new Date().getTime()) {
+                return R.badRequest("请提交正确的日期");
+            }
+        }
+        if (form.getStartTime() != null && form.getEndTime() != null) {
+            if (form.getEndTime().getTime() <= form.getStartTime().getTime()) {
+                return R.badRequest("请提交正确的日期");
+            }
+        }
         // 获取任务对象
         Mission mission = missionService.getById(form.getId());
         if (mission == null) {

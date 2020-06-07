@@ -99,7 +99,8 @@ public class ShiroConfig {
                 "/error/**",
                 "/druid/**",
                 "/ping/**",
-                "/portal/**"
+                "/portal/**",
+                "/submit/**"
         };
         for (String path : anonPaths) {
             filterChainDefinitionMap.put(path, "anon");

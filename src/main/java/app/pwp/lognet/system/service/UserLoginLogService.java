@@ -39,7 +39,7 @@ public class UserLoginLogService extends BaseService<UserLoginLog> {
         return this.baseDao.add(log);
     }
     // 获取近期的登录日志
-    @Cacheable(value = "queryCache", key = "'user_loginlog_' + #uid")
+    @Cacheable(value = "queryCache", key = "'user_loginlog_' + #uid", unless = "#result == null")
     public List<UserLoginLog> getRecent(long uid) {
         Session session = this.baseDao.getHibernateSession();
         Query<UserLoginLog> query = session.createQuery("FROM UserLoginLog WHERE uid = :uid ORDER BY createTime desc");

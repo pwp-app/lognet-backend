@@ -1,6 +1,5 @@
 package app.pwp.lognet.base.dao;
 
-import org.apache.shiro.crypto.hash.Hash;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -11,7 +10,6 @@ import org.hibernate.internal.CriteriaImpl;
 import org.hibernate.query.Query;
 import org.springframework.orm.hibernate5.SessionFactoryUtils;
 import org.springframework.stereotype.Repository;
-import org.springframework.validation.ObjectError;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
