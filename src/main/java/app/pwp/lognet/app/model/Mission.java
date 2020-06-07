@@ -16,7 +16,7 @@ public class Mission extends BaseUUIDEntity implements Serializable {
     // 任务名称
     private String name;
     // 描述
-    @Column(name="DESC", columnDefinition="TEXT")
+    @Column(length = 200)
     private String desc;
     // 任务可用期
     private Date startTime;

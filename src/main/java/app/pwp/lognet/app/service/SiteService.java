@@ -4,6 +4,7 @@ import app.pwp.lognet.app.model.Site;
 import app.pwp.lognet.base.service.BaseService;
 import app.pwp.lognet.utils.common.HashUtils;
 import app.pwp.lognet.utils.common.UUIDUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,7 +14,7 @@ import java.util.HashMap;
 @Transactional
 public class SiteService extends BaseService<Site> {
 
-    public HashMap<String, Object> list(long uid, int page, int pageSize) {
+    public HashMap<String, Object> listByUser(long uid, int page, int pageSize) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("uid", uid);
         return this.baseDao.showPageWithTotal("FROM Site WHERE uid = :uid", params, page, pageSize);
@@ -23,9 +24,18 @@ public class SiteService extends BaseService<Site> {
         return this.baseDao.getById(Site.class, id);
     }
 
+    // 获取站点对应的用户ID
+    @Cacheable(value = "queryLongCache", key = "'site_uid_' + #id", unless = "#result != null")
+    public Long getUserId(String id) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("id", id);
+        return this.baseDao.getSingleLong("SELECT uid FROM Site WHERE id = :id", params);
+    }
+
     public boolean add(Site site) {
         // 生成随机的appKey
         site.setAppKey(HashUtils.sha1(UUIDUtils.generate()));
+        site.setEnabled(true);
         return this.baseDao.add(site);
     }
 

@@ -24,7 +24,7 @@ public class SiteController {
         if (page < 0 || pageSize < 0 || pageSize > 20) {
             return R.badRequest("请提交正确的参数");
         }
-        return R.success(siteService.list(userAuthUtils.getUid(), page, pageSize));
+        return R.success(siteService.listByUser(userAuthUtils.getUid(), page, pageSize));
     }
 
     @PostMapping("/add")

@@ -17,14 +17,14 @@ public class UserService extends BaseService<User> {
 
     public boolean update(User user) { return this.baseDao.updateEntity(user); }
 
-    @Cacheable(value = "queryLongCache", key = "'user_exists_' + #username", unless = "#result == false")
+    @Cacheable(value = "queryPersistCache", key = "'user_exists_' + #username", unless = "#result == false")
     public boolean existsByUsername(String username) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("username", username);
         return this.baseDao.countBySession("SELECT count(*) FROM User WHERE username = :username", params) > 0;
     }
 
-    @Cacheable(value = "queryLongCache", key = "'user_exists_' + #mail", unless = "#result == false")
+    @Cacheable(value = "queryPersistCache", key = "'user_exists_' + #mail", unless = "#result == false")
     public boolean existsByMail(String mail) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("mail", mail);

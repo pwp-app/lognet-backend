@@ -8,8 +8,7 @@ import javax.validation.constraints.Pattern;
 public class SiteUpdateForm {
     @NotEmpty(message = "请提交正确的参数")
     private String id;
-    @NotEmpty(message = "请提交正确的参数")
-    @Length(min = 0, max = 100)
+    @Length(max = 100, message = "描述不得超过100个字符")
     private String desc;
 
     public String getId() {

@@ -1,5 +1,6 @@
 package app.pwp.lognet.base.dao;
 
+import org.apache.shiro.crypto.hash.Hash;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -10,6 +11,7 @@ import org.hibernate.internal.CriteriaImpl;
 import org.hibernate.query.Query;
 import org.springframework.orm.hibernate5.SessionFactoryUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.validation.ObjectError;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -203,6 +205,34 @@ public class BaseDao<T> {
         } catch (Exception e){
             e.printStackTrace();
             return -1;
+        }
+    }
+
+    public Long getSingleLong(String hql, HashMap<String, Object> params) {
+        try {
+            Query<Long> query = this.getHibernateSession().createQuery(hql);
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                query.setParameter(entry.getKey(), entry.getValue());
+            }
+            query.setMaxResults(1);
+            return query.uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public String getSingleString(String hql, HashMap<String, Object> params) {
+        try {
+            Query<String> query = this.getHibernateSession().createQuery(hql);
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                query.setParameter(entry.getKey(), entry.getValue());
+            }
+            query.setMaxResults(1);
+            return query.uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

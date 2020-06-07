@@ -9,7 +9,7 @@
             diskPersistent="true"
             diskSpoolBufferSizeMB="32"
     />
-    <!-- 普通查询缓存 -->
+    <!-- 普通查询缓存（5分钟） -->
     <cache name="queryCache"
            maxElementsInMemory="2000"
            maxElementsOnDisk="5000"
@@ -18,8 +18,17 @@
            overflowToDisk="true"
            diskPersistent="false"
            diskSpoolBufferSizeMB="32"/>
-    <!-- 长效查询缓存 -->
+    <!-- 长效查询缓存（30分钟） -->
     <cache name="queryLongCache"
+           maxElementsInMemory="2000"
+           maxElementsOnDisk="5000"
+           timeToLiveSeconds="1800"
+           eternal="false"
+           overflowToDisk="true"
+           diskPersistent="false"
+           diskSpoolBufferSizeMB="32"/>
+    <!-- 持久化查询缓存 -->
+    <cache name="queryPersistCache"
            maxElementsInMemory="2000"
            maxElementsOnDisk="5000"
            eternal="true"
