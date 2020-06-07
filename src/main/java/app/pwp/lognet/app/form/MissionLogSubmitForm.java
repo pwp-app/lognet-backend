@@ -9,6 +9,8 @@ public class MissionLogSubmitForm {
     @NotEmpty(message = "请提交正确参数")
     private String missionId;
     @NotEmpty(message = "请提交正确参数")
+    private String path;
+    @NotEmpty(message = "请提交正确参数")
     @Pattern(regexp = "^(debug)|(info)|(warn)|(error)$")
     private String type;
     @NotEmpty(message = "请提交正确参数")
@@ -28,6 +30,14 @@ public class MissionLogSubmitForm {
 
     public void setMissionId(String missionId) {
         this.missionId = missionId;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public String getType() {

@@ -12,6 +12,8 @@ import javax.persistence.Table;
 public class ErrorLog extends BaseUUIDLog {
     // 对应的site
     private String siteId;
+    // 对应路径
+    private String path;
     // 日志内容（Long text）
     @Column(length = 16777215)
     private String content;
@@ -22,6 +24,14 @@ public class ErrorLog extends BaseUUIDLog {
 
     public void setSiteId(String siteId) {
         this.siteId = siteId;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public String getContent() {

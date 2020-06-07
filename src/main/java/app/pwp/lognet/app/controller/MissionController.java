@@ -127,12 +127,18 @@ public class MissionController {
 
     @PostMapping("/delete")
     public R delete(String id) {
+        // 校验参数
         if (id == null || id.length() < 1) {
             return R.badRequest("请提交正确的参数");
         }
+        // 检查权限
         R check = checkAuth(id);
         if (check.getCode() != 200) {
             return check;
+        }
+        // 检查存在
+        if (!missionService.exists(id)) {
+            return R.error("指定的任务不存在");
         }
         if (missionService.deleteById(id)) {
             return R.success("删除成功");

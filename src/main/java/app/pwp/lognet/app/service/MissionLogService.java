@@ -14,6 +14,18 @@ public class MissionLogService extends BaseService<MissionLog> {
         return this.baseDao.add(log);
     }
 
+    public HashMap<String, Object> list(String missionId, int page, int pageSize) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("missionId", missionId);
+        return this.baseDao.showPageWithTotal("FROM MissionLog WHERE missionId = :missionId", params, page, pageSize);
+    }
+
+    public String getMissionId(String id) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("id", id);
+        return this.baseDao.getSingleString("SELECT missionId FROM MissionLog WHERE id = :id", params);
+    }
+
     public boolean deleteById(String id) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("id", id);

@@ -8,6 +8,7 @@ import app.pwp.lognet.utils.geo.CZIP;
 import app.pwp.lognet.utils.geo.CZIPStringUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ public class UserLoginLogService extends BaseService<UserLoginLog> {
     @Resource
     private CZIP czip;
     // 异步执行任务，提升速度
+    @CacheEvict(value = "queryCache", key = "'user_loginlog_' + #uid")
     public boolean create(long uid, String ip) throws Exception {
         UserLoginLog log = new UserLoginLog(uid, ip);
         // 根据IP获取地理位置信息

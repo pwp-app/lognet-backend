@@ -3,9 +3,11 @@ package app.pwp.lognet.app.controller;
 import app.pwp.lognet.app.form.SiteCreateForm;
 import app.pwp.lognet.app.form.SiteUpdateForm;
 import app.pwp.lognet.app.model.Site;
+import app.pwp.lognet.app.service.ErrorLogService;
 import app.pwp.lognet.app.service.SiteService;
 import app.pwp.lognet.utils.auth.UserAuthUtils;
 import app.pwp.lognet.utils.common.R;
+import org.hibernate.validator.constraints.pl.REGON;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -85,10 +87,14 @@ public class SiteController {
         if (site.getUid() != uid) {
             return R.unauth("无权访问");
         }
-        if (siteService.deleteById(id)) {
-            return R.success("删除成功");
-        } else {
-            return R.error("服务器错误，删除失败");
+        try {
+            if (siteService.delete(site)) {
+                return R.success("删除成功");
+            } else {
+                return R.error("服务器错误，删除失败");
+            }
+        } catch (RuntimeException e) {
+            return R.error(e.getMessage());
         }
     }
 }

@@ -14,6 +14,18 @@ public class ErrorLogService extends BaseService<ErrorLog> {
         return this.baseDao.add(log);
     }
 
+    public HashMap<String, Object> list(String siteId, int page, int pageSize) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("siteId", siteId);
+        return this.baseDao.showPageWithTotal("FROM ErrorLog WHERE siteId = :siteId", params, page, pageSize);
+    }
+
+    public Long getUserId(String id) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("id", id);
+        return this.baseDao.getSingleLong("SELECT Site.userId FROM Site INNER JOIN ErrorLog WITH ErrorLog.siteId = Site.id WHERE ErrorLog.id = :id", params);
+    }
+
     public boolean deleteById(String id) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("id", id);

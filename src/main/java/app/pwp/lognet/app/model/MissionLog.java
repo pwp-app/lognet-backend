@@ -13,6 +13,8 @@ public class MissionLog extends BaseUUIDLog {
     private String missionId;
     // 类型（debug、info、warn、error）
     private String type;
+    // 对应页面
+    private String path;
     // 日志内容（Long text）
     @Column(length = 16777215)
     private String content;
@@ -23,6 +25,14 @@ public class MissionLog extends BaseUUIDLog {
 
     public void setMissionId(String missionId) {
         this.missionId = missionId;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public String getType() {

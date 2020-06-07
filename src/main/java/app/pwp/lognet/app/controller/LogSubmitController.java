@@ -5,6 +5,7 @@ import app.pwp.lognet.app.form.MissionLogSubmitForm;
 import app.pwp.lognet.app.model.ErrorLog;
 import app.pwp.lognet.app.model.Mission;
 import app.pwp.lognet.app.model.MissionLog;
+import app.pwp.lognet.app.model.Site;
 import app.pwp.lognet.app.service.ErrorLogService;
 import app.pwp.lognet.app.service.MissionLogService;
 import app.pwp.lognet.app.service.MissionService;
@@ -37,12 +38,14 @@ public class LogSubmitController {
     @PostMapping("/general")
     public R generalSubmit(@RequestBody @Valid GeneralLogSubmitForm form) {
         // 验证appKey
-        String siteId = siteService.getIdByKey(form.getAppKey());
-        if (siteId == null) {
-            return R.badRequest("提交的AppKey不正确");
+        Site site = siteService.getByKey(form.getAppKey());
+        // 验证可用性
+        if (!site.isEnabled()) {
+            return R.error("站点已被禁用");
         }
         // 构造
         ErrorLog log = new ErrorLog();
+        log.setPath(form.getPath());
         log.setContent(form.getContent());
         if (errorLogService.create(log)) {
             return R.success("提交成功");
@@ -65,6 +68,10 @@ public class LogSubmitController {
         if (!mission.getSiteId().equals(siteId)) {
             return R.badRequest("提交的任务ID不正确");
         }
+        // 检查可用性
+        if (!mission.isEnabled()) {
+            return R.error("任务已被禁用");
+        }
         // 校验时间
         if (mission.getEndTime() != null) {
             if (new Date().getTime() > mission.getEndTime().getTime()) {
@@ -79,6 +86,7 @@ public class LogSubmitController {
         // 构造
         MissionLog log = new MissionLog();
         log.setMissionId(form.getMissionId());
+        log.setPath(form.getPath());
         log.setContent(form.getContent());
         log.setType(form.getType());
         if (missionLogService.create(log)) {
