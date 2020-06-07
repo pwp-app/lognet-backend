@@ -34,10 +34,14 @@ public class SiteController {
         if (uid == null) {
             return R.error("无法获取当前用户的信息");
         }
+        // 检查重复（同一User下不能有两个一样的域名）
+        if (siteService.domainExists(uid, form.getDomain())) {
+            return R.error("该域名已经存在，请勿重复添加");
+        }
         site.setUid(uid);
         site.setDomain(form.getDomain());
         site.setDescription(form.getDesc());
-        if (this.siteService.add(site)) {
+        if (siteService.add(site)) {
             return R.success("添加成功");
         } else {
             return R.error("服务器错误，添加失败");
