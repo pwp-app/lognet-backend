@@ -1,8 +1,10 @@
 package app.pwp.lognet.app.controller;
 
+import app.pwp.lognet.app.form.GeneralDeleteForm;
 import app.pwp.lognet.app.form.MissionCreateForm;
 import app.pwp.lognet.app.form.MissionUpdateForm;
 import app.pwp.lognet.app.model.Mission;
+import app.pwp.lognet.app.service.MissionLogService;
 import app.pwp.lognet.app.service.MissionService;
 import app.pwp.lognet.app.service.SiteService;
 import app.pwp.lognet.utils.auth.UserAuthUtils;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.Date;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/mission")
@@ -20,6 +23,8 @@ public class MissionController {
     private SiteService siteService;
     @Resource
     private MissionService missionService;
+    @Resource
+    private MissionLogService missionLogService;
     @Resource
     private UserAuthUtils userAuthUtils;
 
@@ -89,6 +94,29 @@ public class MissionController {
         return R.success(mission);
     }
 
+    @GetMapping("/fetchStats")
+    public R fetchStats(String id) {
+        // 数据校验
+        if (id == null || id.length() < 1) {
+            return R.badRequest("请提交正确的参数");
+        }
+        // 权限检查
+        Long uid = userAuthUtils.getUid();
+        if (uid == null) {
+            return R.error("无法获取用户信息");
+        }
+        if (!missionService.getUserId(id).equals(uid)) {
+            return R.unauth("无权访问");
+        }
+        // 获取统计数据
+        HashMap<String, Object> res = new HashMap<>();
+        res.put("total", missionLogService.countTotal(id));
+        res.put("today", missionLogService.countToday(id));
+        res.put("totalError", missionLogService.countError(id));
+        res.put("todayError", missionLogService.countTodayError(id));
+        return R.success(res);
+    }
+
     @PostMapping("/create")
     public R create(@RequestBody @Valid MissionCreateForm form) {
         // 权限检查
@@ -147,21 +175,17 @@ public class MissionController {
     }
 
     @PostMapping("/delete")
-    public R delete(String id) {
-        // 校验参数
-        if (id == null || id.length() < 1) {
-            return R.badRequest("请提交正确的参数");
-        }
+    public R delete(@RequestBody @Valid GeneralDeleteForm form) {
         // 检查权限
-        R check = checkAuth(id);
+        R check = checkAuth(form.getId());
         if (check.getCode() != 200) {
             return check;
         }
         // 检查存在
-        if (!missionService.exists(id)) {
+        if (!missionService.exists(form.getId())) {
             return R.error("指定的任务不存在");
         }
-        if (missionService.deleteById(id)) {
+        if (missionService.deleteById(form.getId())) {
             return R.success("删除成功");
         } else {
             return R.error("服务器错误，删除失败");

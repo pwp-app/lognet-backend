@@ -1,5 +1,6 @@
 package app.pwp.lognet.app.controller;
 
+import app.pwp.lognet.app.form.GeneralDeleteForm;
 import app.pwp.lognet.app.form.SiteCreateForm;
 import app.pwp.lognet.app.form.SiteUpdateForm;
 import app.pwp.lognet.app.model.Site;
@@ -127,11 +128,8 @@ public class SiteController {
     }
 
     @PostMapping("/delete")
-    public R delete(String id) {
-        if (id == null || id.length() < 1) {
-            return R.badRequest("请提交正确的参数");
-        }
-        Site site = siteService.getById(id);
+    public R delete(@RequestBody @Valid GeneralDeleteForm form) {
+        Site site = siteService.getById(form.getId());
         if (site == null) {
             return R.error("找不到对应的站点");
         }
