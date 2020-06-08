@@ -45,6 +45,7 @@ public class LogSubmitController {
         }
         // 构造
         ErrorLog log = new ErrorLog();
+        log.setSiteId(site.getId());
         log.setPath(form.getPath());
         log.setContent(form.getContent());
         if (errorLogService.create(log)) {
