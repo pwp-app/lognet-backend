@@ -32,7 +32,7 @@ public class MissionController {
         if (missionUid == null) {
             return R.error("无法获取任务信息");
         }
-        if (uid != missionUid) {
+        if (!uid.equals(missionUid)) {
             return R.unauth("无权访问");
         }
         return R.success();
@@ -47,7 +47,7 @@ public class MissionController {
         if (siteUid == null) {
             return R.error("无法获取站点信息");
         }
-        if (uid != siteUid) {
+        if (!uid.equals(siteUid)) {
             return R.unauth("无权访问");
         }
         return R.success();
@@ -78,7 +78,7 @@ public class MissionController {
         if (uid == null) {
             return R.error("无法获取用户信息");
         }
-        if (missionService.getUserId(id) != uid) {
+        if (!missionService.getUserId(id).equals(uid)) {
             return R.unauth("无权访问");
         }
         // 获取

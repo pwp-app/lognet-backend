@@ -19,6 +19,18 @@ public class MissionService extends BaseService<Mission> {
         return this.baseDao.showPageWithTotal("FROM Mission WHERE siteId = :siteId ORDER BY createTime DESC", params, page, pageSize);
     }
 
+    public Long countBySite(String siteId) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("siteId", siteId);
+        return this.baseDao.countBySession("SELECT count(*) FROM Mission WHERE siteId = :siteId", params);
+    }
+
+    public Long countRunningBySite(String siteId) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("siteId", siteId);
+        return this.baseDao.countBySession("SELECT count(*) FROM Mission WHERE siteId = :siteId AND ((startTime < current_time() AND endTime > current_time()) OR (startTime is null AND endTime > current_time()) OR (startTime < current_time() AND endTime is null) OR (startTime is null AND endTime is null))", params);
+    }
+
     @Cacheable(value = "queryLongCache", key = "'mission_byId_' + #id", unless = "#result == null")
     public Mission getById(String id) {
         return this.baseDao.getById(Mission.class, id);
@@ -36,7 +48,7 @@ public class MissionService extends BaseService<Mission> {
     public Long getUserId(String id) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("id", id);
-        return this.baseDao.getSingleLong("SELECT Site.uid FROM Site INNER JOIN Mission WITH Mission.siteId = Site.id WHERE Mission.id = :id", params);
+        return this.baseDao.getSingleLong("SELECT s.uid FROM Site s, Mission m WHERE m.siteId = s.id AND m.id = :id", params);
     }
 
     @Cacheable(value = "queryLongCache", key="'mission_site_' + #id", unless = "#result == null")

@@ -36,7 +36,7 @@ public class MissionLogController {
         if (missionUserId == null) {
             return R.error("无法获取任务信息");
         }
-        if (missionUserId != uid) {
+        if (!missionUserId.equals(uid)) {
             return R.unauth("无法访问");
         }
         // 返回结果
@@ -54,7 +54,7 @@ public class MissionLogController {
         if (_missionId == null) {
             return R.error("无法获取任务信息");
         }
-        if (missionId != _missionId) {
+        if (!missionId.equals(_missionId)) {
             return R.error("提交的任务ID不正确");
         }
         // 权限校验
@@ -66,7 +66,7 @@ public class MissionLogController {
         if (missionUserId == null) {
             return R.error("无法获取任务信息");
         }
-        if (missionUserId != uid) {
+        if (!missionUserId.equals(uid)) {
             return R.unauth("无法访问");
         }
         if (missionLogService.deleteById(id)) {

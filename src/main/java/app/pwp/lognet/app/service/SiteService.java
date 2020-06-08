@@ -80,7 +80,7 @@ public class SiteService extends BaseService<Site> {
         HashMap<String, Object> params = new HashMap<>();
         params.put("id", site.getId());
         // 删除相关的任务记录
-        this.baseDao.removeBySession("DELETE FROM MissionLog INNER JOIN Mission WITH Mission.id = MissionLog.missionId WHERE Mission.siteId = :id", params);
+        this.baseDao.removeBySession("DELETE FROM MissionLog WHERE missionId IN (SELECT id FROM Mission WHERE Mission.siteId = :id)", params);
         // 删除相关的任务
         this.baseDao.removeBySession("DELETE FROM Mission WHERE siteId = :id", params);
         // 删除相关的错误记录

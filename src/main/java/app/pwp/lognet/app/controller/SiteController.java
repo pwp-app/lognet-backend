@@ -3,6 +3,8 @@ package app.pwp.lognet.app.controller;
 import app.pwp.lognet.app.form.SiteCreateForm;
 import app.pwp.lognet.app.form.SiteUpdateForm;
 import app.pwp.lognet.app.model.Site;
+import app.pwp.lognet.app.service.ErrorLogService;
+import app.pwp.lognet.app.service.MissionService;
 import app.pwp.lognet.app.service.SiteService;
 import app.pwp.lognet.utils.auth.UserAuthUtils;
 import app.pwp.lognet.utils.common.R;
@@ -10,12 +12,17 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping(value = "/site")
 public class SiteController {
     @Resource
     private SiteService siteService;
+    @Resource
+    private MissionService missionService;
+    @Resource
+    private ErrorLogService errorLogService;
     @Resource
     private UserAuthUtils userAuthUtils;
 
@@ -41,10 +48,37 @@ public class SiteController {
         if (uid == null) {
             return R.error("无法获取用户信息");
         }
-        if (site.getUid() != uid) {
+        if (!site.getUid().equals(uid)) {
             return R.unauth("无权访问");
         }
         return R.success(site);
+    }
+
+    @GetMapping("/fetchStats")
+    public R fetchStats(String id) {
+        // 数据校验
+        if (id == null || id.length() < 1) {
+            return R.badRequest("请提交正确的参数");
+        }
+        // 权限检查
+        Site site = siteService.getById(id);
+        if (site == null) {
+            return R.error("无法获取对应的站点信息");
+        }
+        Long uid = userAuthUtils.getUid();
+        if (uid == null) {
+            return R.error("无法获取用户信息");
+        }
+        if (!site.getUid().equals(uid)) {
+            return R.unauth("无权访问");
+        }
+        // 获取数据
+        HashMap<String, Object> res = new HashMap<>();
+        res.put("total", missionService.countBySite(id));
+        res.put("running", missionService.countRunningBySite(id));
+        res.put("totalLog", errorLogService.countBySite(id));
+        res.put("recentLog", errorLogService.countRecentBySite(id));
+        return R.success(res);
     }
 
     @PostMapping("/add")
@@ -80,7 +114,7 @@ public class SiteController {
         if (uid == null) {
             return R.error("无法获取当前用户的信息");
         }
-        if (site.getUid() != uid) {
+        if (!site.getUid().equals(uid)) {
             return R.unauth("无权访问");
         }
         // 更新信息
@@ -106,7 +140,7 @@ public class SiteController {
         if (uid == null) {
             return R.error("无法获取当前用户的信息");
         }
-        if (site.getUid() != uid) {
+        if (!site.getUid().equals(uid)) {
             return R.unauth("无权访问");
         }
         try {

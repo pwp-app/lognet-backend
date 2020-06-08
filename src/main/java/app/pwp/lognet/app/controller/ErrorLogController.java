@@ -36,7 +36,7 @@ public class ErrorLogController {
         if (siteUserId == null) {
             return R.error("无法获取站点信息");
         }
-        if (siteUserId != uid) {
+        if (!siteUserId.equals(uid)) {
             return R.unauth("无权访问");
         }
         return R.success(errorLogService.list(siteId, page, pageSize));
@@ -57,7 +57,7 @@ public class ErrorLogController {
         if (logUserId == null) {
             return R.error("无法获取日志信息");
         }
-        if (logUserId != uid) {
+        if (!logUserId.equals(uid)) {
             return R.unauth("无权访问");
         }
         if (errorLogService.deleteById(id)) {

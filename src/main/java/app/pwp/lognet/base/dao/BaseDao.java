@@ -208,12 +208,12 @@ public class BaseDao<T> {
 
     public Long getSingleLong(String hql, HashMap<String, Object> params) {
         try {
-            Query<Long> query = this.getHibernateSession().createQuery(hql);
+            Query query = this.getHibernateSession().createQuery(hql);
             for (Map.Entry<String, Object> entry : params.entrySet()) {
                 query.setParameter(entry.getKey(), entry.getValue());
             }
             query.setMaxResults(1);
-            return query.uniqueResult();
+            return (Long) query.uniqueResult();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -222,12 +222,12 @@ public class BaseDao<T> {
 
     public String getSingleString(String hql, HashMap<String, Object> params) {
         try {
-            Query<String> query = this.getHibernateSession().createQuery(hql);
+            Query query = this.getHibernateSession().createQuery(hql);
             for (Map.Entry<String, Object> entry : params.entrySet()) {
                 query.setParameter(entry.getKey(), entry.getValue());
             }
             query.setMaxResults(1);
-            return query.uniqueResult();
+            return (String) query.uniqueResult();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
