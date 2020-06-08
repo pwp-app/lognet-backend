@@ -17,7 +17,7 @@ public class MissionLogService extends BaseService<MissionLog> {
     public HashMap<String, Object> list(String missionId, int page, int pageSize) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("missionId", missionId);
-        return this.baseDao.showPageWithTotal("FROM MissionLog WHERE missionId = :missionId", params, page, pageSize);
+        return this.baseDao.showPageWithTotal("FROM MissionLog WHERE missionId = :missionId ORDER BY createTime DESC", params, page, pageSize);
     }
 
     public String getMissionId(String id) {

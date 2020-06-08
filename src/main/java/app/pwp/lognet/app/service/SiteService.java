@@ -18,7 +18,7 @@ public class SiteService extends BaseService<Site> {
     public HashMap<String, Object> listByUser(long uid, int page, int pageSize) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("uid", uid);
-        return this.baseDao.showPageWithTotal("FROM Site WHERE uid = :uid", params, page, pageSize);
+        return this.baseDao.showPageWithTotal("FROM Site WHERE uid = :uid ORDER BY createTime DESC", params, page, pageSize);
     }
 
     public boolean domainExists(Long uid, String domain) {

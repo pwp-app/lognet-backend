@@ -16,7 +16,7 @@ public class MissionService extends BaseService<Mission> {
     public HashMap<String, Object> listBySite(String siteId, int page, int pageSize) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("siteId", siteId);
-        return this.baseDao.showPageWithTotal("FROM Mission WHERE siteId = :siteId", params, page, pageSize);
+        return this.baseDao.showPageWithTotal("FROM Mission WHERE siteId = :siteId ORDER BY createTime DESC", params, page, pageSize);
     }
 
     @Cacheable(value = "queryLongCache", key = "'mission_byId_' + #id", unless = "#result == null")

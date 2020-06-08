@@ -17,7 +17,7 @@ public class ErrorLogService extends BaseService<ErrorLog> {
     public HashMap<String, Object> list(String siteId, int page, int pageSize) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("siteId", siteId);
-        return this.baseDao.showPageWithTotal("FROM ErrorLog WHERE siteId = :siteId", params, page, pageSize);
+        return this.baseDao.showPageWithTotal("FROM ErrorLog WHERE siteId = :siteId ORDER BY createTime DESC", params, page, pageSize);
     }
 
     public Long getUserId(String id) {
