@@ -55,6 +55,16 @@ public class ErrorLogService extends BaseService<ErrorLog> {
         return this.baseDao.countBySession("SELECT count(*) FROM ErrorLog WHERE siteId = :siteId AND createTime > :dateLimit", params);
     }
 
+    public Long countRecentByUser(Long uid) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("uid", uid);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DATE, -7);
+        params.put("dateLimit", calendar.getTime());
+        return this.baseDao.countBySession("SELECT count(*) FROM ErrorLog WHERE siteId IN (SELECT id FROM Site WHERE uid = :uid) AND createTime > :dateLimit", params);
+    }
+
     public HashMap<String, Object> list(String siteId, int page, int pageSize) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("siteId", siteId);

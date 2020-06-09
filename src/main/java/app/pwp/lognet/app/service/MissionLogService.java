@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -46,6 +47,16 @@ public class MissionLogService extends BaseService<MissionLog> {
         HashMap<String, Object> params = new HashMap<>();
         params.put("uid", uid);
         return this.baseDao.countBySession("SELECT count(*) FROM MissionLog WHERE missionId in (SELECT id FROM Mission WHERE siteId IN (SELECT id FROM Site WHERE uid = :uid)) AND createTime > '"+ dateFormatter.format(new Date()) + " 00:00:00'", params);
+    }
+
+    public Long countRecentByUser(Long uid) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("uid", uid);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DATE, -7);
+        params.put("dateLimit", calendar.getTime());
+        return this.baseDao.countBySession("SELECT count(*) FROM MissionLog WHERE missionId in (SELECT id FROM Mission WHERE siteId IN (SELECT id FROM Site WHERE uid = :uid)) AND createTime > :dateLimit", params);
     }
 
     public Long countTodayError(String missionId) {

@@ -5,6 +5,7 @@ import app.pwp.lognet.app.form.SiteCreateForm;
 import app.pwp.lognet.app.form.SiteUpdateForm;
 import app.pwp.lognet.app.model.Site;
 import app.pwp.lognet.app.service.ErrorLogService;
+import app.pwp.lognet.app.service.MissionLogService;
 import app.pwp.lognet.app.service.MissionService;
 import app.pwp.lognet.app.service.SiteService;
 import app.pwp.lognet.utils.auth.UserAuthUtils;
@@ -25,6 +26,8 @@ public class SiteController {
     @Resource
     private ErrorLogService errorLogService;
     @Resource
+    private MissionLogService missionLogService;
+    @Resource
     private UserAuthUtils userAuthUtils;
 
     @GetMapping("/list")
@@ -33,6 +36,19 @@ public class SiteController {
             return R.badRequest("请提交正确的参数");
         }
         return R.success(siteService.listByUser(userAuthUtils.getUid(), page, pageSize));
+    }
+
+    @GetMapping("/fetchOverall")
+    public R fetchOverall() {
+        Long uid = userAuthUtils.getUid();
+        if (uid == null) {
+            return R.error("无法获取用户信息");
+        }
+        HashMap<String, Object> res = new HashMap<>();
+        res.put("total", siteService.countByUser(uid));
+        res.put("recentGeneralLog", errorLogService.countRecentByUser(uid));
+        res.put("recentMissionLog", missionLogService.countRecentByUser(uid));
+        return R.success(res);
     }
 
     @GetMapping("/fetchInfo")
