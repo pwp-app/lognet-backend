@@ -9,6 +9,15 @@
             diskPersistent="true"
             diskSpoolBufferSizeMB="32"
     />
+    <!-- 短效查询缓存（1分钟） -->
+    <cache name="queryShortCache"
+           maxElementsInMemory="2000"
+           maxElementsOnDisk="5000"
+           timeToLiveSeconds="60"
+           eternal="false"
+           overflowToDisk="true"
+           diskPersistent="false"
+           diskSpoolBufferSizeMB="32"/>
     <!-- 普通查询缓存（5分钟） -->
     <cache name="queryCache"
            maxElementsInMemory="2000"

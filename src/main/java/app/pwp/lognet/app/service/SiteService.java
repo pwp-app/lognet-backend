@@ -28,6 +28,12 @@ public class SiteService extends BaseService<Site> {
         return this.baseDao.countBySession("SELECT count(*) FROM Site WHERE uid = :uid AND domain = :domain", params) > 0;
     }
 
+    public Long countByUser(Long uid) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("uid", uid);
+        return this.baseDao.countBySession("SELECT count(*) FROM Site WHERE uid = :uid", params);
+    }
+
     @Cacheable(value = "queryLongCache", key = "'site_byId_' + #id", unless = "#result == null")
     public Site getById(String id) {
         return this.baseDao.getById(Site.class, id);

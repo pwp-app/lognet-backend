@@ -19,6 +19,18 @@ public class MissionService extends BaseService<Mission> {
         return this.baseDao.showPageWithTotal("FROM Mission WHERE siteId = :siteId ORDER BY createTime DESC", params, page, pageSize);
     }
 
+    public Long countRunningByUser(Long uid) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("uid", uid);
+        return this.baseDao.countBySession("SELECT count(*) FROM Mission WHERE " +
+                "siteId IN (SELECT id FROM Site WHERE uid = :uid) AND " +
+                "isEnabled = true AND " +
+                "((startTime < CURRENT_TIME AND endTime > CURRENT_TIME) OR " +
+                "(startTime is null AND endTime > CURRENT_TIME) OR " +
+                "(startTime < CURRENT_TIME AND endTime is null) OR " +
+                "(startTime is null AND endTime is null))", params);
+    }
+
     public Long countBySite(String siteId) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("siteId", siteId);
@@ -28,7 +40,11 @@ public class MissionService extends BaseService<Mission> {
     public Long countRunningBySite(String siteId) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("siteId", siteId);
-        return this.baseDao.countBySession("SELECT count(*) FROM Mission WHERE siteId = :siteId AND ((startTime < current_time() AND endTime > current_time()) OR (startTime is null AND endTime > current_time()) OR (startTime < current_time() AND endTime is null) OR (startTime is null AND endTime is null))", params);
+        return this.baseDao.countBySession("SELECT count(*) FROM Mission WHERE siteId = :siteId AND isEnabled = true AND " +
+                "((startTime < CURRENT_TIME AND endTime > CURRENT_TIME) OR " +
+                "(startTime is null AND endTime > CURRENT_TIME) OR " +
+                "(startTime < CURRENT_TIME AND endTime is null) OR " +
+                "(startTime is null AND endTime is null))", params);
     }
 
     @Cacheable(value = "queryLongCache", key = "'mission_byId_' + #id", unless = "#result == null")

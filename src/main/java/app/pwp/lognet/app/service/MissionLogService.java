@@ -16,7 +16,7 @@ public class MissionLogService extends BaseService<MissionLog> {
         return this.baseDao.add(log);
     }
 
-    private SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+    private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 
     public HashMap<String, Object> list(String missionId, int page, int pageSize) {
         HashMap<String, Object> params = new HashMap<>();
@@ -40,6 +40,12 @@ public class MissionLogService extends BaseService<MissionLog> {
         HashMap<String, Object> params = new HashMap<>();
         params.put("missionId", missionId);
         return this.baseDao.countBySession("SELECT count(*) FROM MissionLog WHERE missionId = :missionId AND createTime > '"+ dateFormatter.format(new Date()) + " 00:00:00'", params);
+    }
+
+    public Long countTodayByUser(Long uid) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("uid", uid);
+        return this.baseDao.countBySession("SELECT count(*) FROM MissionLog WHERE missionId in (SELECT id FROM Mission WHERE siteId IN (SELECT id FROM Site WHERE uid = :uid)) AND createTime > '"+ dateFormatter.format(new Date()) + " 00:00:00'", params);
     }
 
     public Long countTodayError(String missionId) {

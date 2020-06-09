@@ -1,12 +1,15 @@
 package app.pwp.lognet.app.model;
 
+import app.pwp.lognet.app.ro.HotPath;
 import app.pwp.lognet.base.model.BaseUUIDLog;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
+@SqlResultSetMapping(name = "HotPath", classes = {
+        @ConstructorResult(targetClass = HotPath.class,
+                columns = {@ColumnResult(name = "domain"), @ColumnResult(name = "path"), @ColumnResult(name = "count", type=Long.class)})
+})
 @Table(name = "lognet_errorlog")
 // 通用的错误日志
 public class ErrorLog extends BaseUUIDLog {
@@ -29,6 +32,7 @@ public class ErrorLog extends BaseUUIDLog {
     public String getPath() {
         return path;
     }
+
 
     public void setPath(String path) {
         this.path = path;

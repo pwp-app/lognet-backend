@@ -39,6 +39,9 @@ public class LogSubmitController {
     public R generalSubmit(@RequestBody @Valid GeneralLogSubmitForm form) {
         // 验证appKey
         Site site = siteService.getByKey(form.getAppKey());
+        if (site == null) {
+            return R.error("无法获取站点信息");
+        }
         // 验证可用性
         if (!site.isEnabled()) {
             return R.error("站点已被禁用");

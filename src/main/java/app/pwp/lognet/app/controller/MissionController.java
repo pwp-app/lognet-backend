@@ -1,6 +1,7 @@
 package app.pwp.lognet.app.controller;
 
 import app.pwp.lognet.app.form.GeneralDeleteForm;
+import app.pwp.lognet.app.form.GeneralMissionForm;
 import app.pwp.lognet.app.form.MissionCreateForm;
 import app.pwp.lognet.app.form.MissionUpdateForm;
 import app.pwp.lognet.app.model.Mission;
@@ -171,6 +172,48 @@ public class MissionController {
             return R.success("更新成功");
         } else {
             return R.error("服务器错误，更新失败");
+        }
+    }
+
+    @PostMapping("/enable")
+    public R enable(@RequestBody @Valid GeneralMissionForm form) {
+        R check = checkAuth(form.getId());
+        if (check.getCode() != 200) {
+            return check;
+        }
+        Mission mission = missionService.getById(form.getId());
+        if (mission == null) {
+            return R.error("指定的任务不存在");
+        }
+        if (mission.isEnabled()) {
+            return R.error("任务已经是启用状态");
+        }
+        mission.setEnabled(true);
+        if (missionService.update(mission)) {
+            return R.success("任务启用成功");
+        } else {
+            return R.error("服务器错误，任务启用失败");
+        }
+    }
+
+    @PostMapping("/disable")
+    public R disable(@RequestBody @Valid GeneralMissionForm form) {
+        R check = checkAuth(form.getId());
+        if (check.getCode() != 200) {
+            return check;
+        }
+        Mission mission = missionService.getById(form.getId());
+        if (mission == null) {
+            return R.error("指定的任务不存在");
+        }
+        if (!mission.isEnabled()) {
+            return R.error("任务已经是禁用状态");
+        }
+        mission.setEnabled(false);
+        if (missionService.update(mission)) {
+            return R.success("任务禁用成功");
+        } else {
+            return R.error("服务器错误，任务启用失败");
         }
     }
 
