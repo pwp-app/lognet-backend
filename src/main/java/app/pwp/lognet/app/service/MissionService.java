@@ -1,7 +1,9 @@
 package app.pwp.lognet.app.service;
 
 import app.pwp.lognet.app.model.Mission;
+import app.pwp.lognet.app.ro.RunningMission;
 import app.pwp.lognet.base.service.BaseService;
+import org.hibernate.query.NativeQuery;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -17,6 +20,17 @@ public class MissionService extends BaseService<Mission> {
         HashMap<String, Object> params = new HashMap<>();
         params.put("siteId", siteId);
         return this.baseDao.showPageWithTotal("FROM Mission WHERE siteId = :siteId ORDER BY createTime DESC", params, page, pageSize);
+    }
+
+    public HashMap<String, Object> listRunningByUser(Long uid, int page, int pageSize) {
+        HashMap<String, Object> response = new HashMap<>();
+        NativeQuery query = this.baseDao.getHibernateSession().createNativeQuery("SELECT m.id, s.domain, m.name, m.start_time, m.end_time FROM lognet_mission m INNER JOIN lognet_sites s ON s.id = m.site_id WHERE s.uid = :uid AND m.is_enabled = 1 AND ((m.start_time IS NULL AND m.end_time is NULL) OR (m.start_time IS NULL AND CURRENT_TIME < m.end_time) OR (m.end_time is NULL AND CURRENT_TIME > m.start_time) OR (m.start_time < CURRENT_TIME AND m.end_time > CURRENT_TIME))", "RunningMission");
+        query.setParameter("uid", uid);
+        query.setFirstResult((page - 1) * pageSize).setMaxResults(pageSize);
+        List<RunningMission> result = (List<RunningMission>) query.list();
+        response.put("data", result);
+        response.put("total", this.countRunningByUser(uid));
+        return response;
     }
 
     public Long countRunningByUser(Long uid) {

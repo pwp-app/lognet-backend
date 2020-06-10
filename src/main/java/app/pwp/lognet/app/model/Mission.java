@@ -1,14 +1,18 @@
 package app.pwp.lognet.app.model;
 
+import app.pwp.lognet.app.ro.HotPath;
+import app.pwp.lognet.app.ro.RunningMission;
 import app.pwp.lognet.base.model.BaseUUIDEntity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
 @Entity
+@SqlResultSetMapping(name = "RunningMission", classes = {
+        @ConstructorResult(targetClass = RunningMission.class,
+                columns = {@ColumnResult(name = "id"), @ColumnResult(name = "domain"), @ColumnResult(name = "name"), @ColumnResult(name = "start_time", type=Date.class), @ColumnResult(name = "end_time", type=Date.class)})
+})
 @Table(name = "lognet_mission")
 public class Mission extends BaseUUIDEntity implements Serializable {
     // 绑定到的site的id

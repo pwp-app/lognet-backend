@@ -52,4 +52,13 @@ public class DashboardController {
         List<HotPath> res = logService.listHotPath(uid);
         return R.success(res);
     }
+
+    @GetMapping("/listRunningMission")
+    public R listRunningMission(int page, int pageSize) {
+        Long uid = userAuthUtils.getUid();
+        if (uid == null) {
+            return R.error("无法获取用户信息");
+        }
+        return R.success(missionService.listRunningByUser(uid, page, pageSize));
+    }
 }
