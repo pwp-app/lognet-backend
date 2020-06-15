@@ -56,12 +56,11 @@ public class PortalController {
     public R login(@RequestBody @Valid UserLoginForm form, HttpServletRequest req) throws Exception {
         Subject subject = SecurityUtils.getSubject();
         // 用户重复登录了，返回成功放行
-        if (subject.isAuthenticated()){
-            User user = (User) subject.getPrincipal();
-            if (user.getId() != null) {
-                user = userService.getById(user.getId());
-            } else {
-                user = userService.getByUsername(user.getUsername());
+        if (subject.isAuthenticated() || subject.isRemembered()){
+            User _user = (User) subject.getPrincipal();
+            User user = null;
+            if (_user.getId() != null) {
+                user = userService.getById(_user.getId());
             }
             if (user != null) {
                 UserResponse response = new UserResponse(user.getId(), user.getUsername(), user.getEmail(), roleService.getById(user.getRoleId()));

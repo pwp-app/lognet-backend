@@ -55,7 +55,7 @@ public class UserController {
             return R.error(e.getMessage());
         }
         // 返回
-        UserResponse res = new UserResponse(user.getId(), user.getUsername(), user.getEmail(), roleService.getById(user.getId()));
+        UserResponse res = new UserResponse(user.getId(), user.getUsername(), user.getEmail(), roleService.getById(user.getRoleId()));
         return R.success(res);
     }
 
