@@ -7,3 +7,5 @@ spring:
     password: 123456
   jpa:
     show-sql: true
+czip:
+  path: F:\Program Files (x86)\cz88.net\ip\qqwry.dat
