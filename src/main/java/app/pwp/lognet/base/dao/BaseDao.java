@@ -54,6 +54,19 @@ public class BaseDao<T> {
         return flag;
     }
 
+    public boolean updateBySession(String hql, HashMap<String, Object> params) {
+        try {
+            Query query = this.getHibernateSession().createQuery(hql);
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                query.setParameter(entry.getKey(), entry.getValue());
+            }
+            return query.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public boolean removeByHql(String hql) {
         boolean flag;
         try {
@@ -228,6 +241,20 @@ public class BaseDao<T> {
             }
             query.setMaxResults(1);
             return (String) query.uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Boolean getSingleBoolean(String hql, HashMap<String, Object> params) {
+        try {
+            Query query = this.getHibernateSession().createQuery(hql);
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                query.setParameter(entry.getKey(), entry.getValue());
+            }
+            query.setMaxResults(1);
+            return (Boolean) query.uniqueResult();
         } catch (Exception e) {
             e.printStackTrace();
             return null;

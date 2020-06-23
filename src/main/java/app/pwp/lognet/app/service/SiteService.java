@@ -21,6 +21,26 @@ public class SiteService extends BaseService<Site> {
         return this.baseDao.showPageWithTotal("FROM Site WHERE uid = :uid ORDER BY createTime DESC", params, page, pageSize);
     }
 
+    @Cacheable(value = "queryLongCache", key = "'site_enabled_' + #id")
+    public boolean checkEnabled(String id) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("id", id);
+        return this.baseDao.getSingleBoolean("SELECT isEnabled FROM Site WHERE id = :id", params);
+    }
+
+    @CacheEvict(value = "queryLongCache", key = "'site_enabled_' + #site.id")
+    public boolean ban(Site site) {
+        site.setEnabled(false);
+        return this.baseDao.updateEntity(site);
+    }
+
+    @CacheEvict(value = "queryLongCache", key = "'site_enabled_' + #site.id")
+    public boolean unban(Site site) {
+        site.setEnabled(true);
+        return this.baseDao.updateEntity(site);
+    }
+
+    @Cacheable(value = "queryLongCache", key = "'site_domain_exists_' + #uid + '_' + #domain")
     public boolean domainExists(Long uid, String domain) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("uid", uid);
@@ -61,6 +81,7 @@ public class SiteService extends BaseService<Site> {
         return this.baseDao.getSingleString("SELECT id FROM Site WHERE appKey = :key", params);
     }
 
+    @CacheEvict(value = "queryLongCache", key="'site_domain_exists_' + #site.uid + '_' + #site.domain")
     public boolean add(Site site) {
         // 生成随机的appKey
         site.setAppKey(HashUtils.sha1(UUIDUtils.generate()));
@@ -80,7 +101,9 @@ public class SiteService extends BaseService<Site> {
             @CacheEvict(value = "queryLongCache", key = "'site_byKey_' + #site.appKey"),
             @CacheEvict(value = "queryLongCache", key="'site_byId_' + #site.id"),
             @CacheEvict(value = "queryLongCache", key="'site_id_' + #site.appKey"),
-            @CacheEvict(value = "queryLongCache", key="'site_uid_' + #site.id")
+            @CacheEvict(value = "queryLongCache", key="'site_uid_' + #site.id"),
+            @CacheEvict(value = "queryLongCache", key="'site_domain_exists_' + #site.uid + '_' + #site.domain")
+            @CacheEvict(value = "queryLongCache", key = "'site_enabled_' + #stie.id")
     })
     public boolean delete(Site site) {
         HashMap<String, Object> params = new HashMap<>();

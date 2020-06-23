@@ -79,6 +79,10 @@ public class LogSubmitController {
         if (!mission.isEnabled()) {
             return R.error("任务已被禁用");
         }
+        // 检查站点可用性
+        if (!siteService.checkEnabled(mission.getSiteId())) {
+            return R.error("站点已被禁用");
+        }
         // 校验时间
         if (mission.getEndTime() != null) {
             if (new Date().getTime() > mission.getEndTime().getTime()) {
