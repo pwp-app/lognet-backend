@@ -18,6 +18,10 @@ public class MissionLog extends BaseUUIDLog {
     // 日志内容（Long text）
     @Column(length = 16777215)
     private String content;
+    private int clientWidth;
+    private int clientHeight;
+    @Column(length = 1000)
+    private String userAgent;
 
     public String getMissionId() {
         return missionId;
@@ -49,5 +53,29 @@ public class MissionLog extends BaseUUIDLog {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public int getClientWidth() {
+        return clientWidth;
+    }
+
+    public void setClientWidth(int clientWidth) {
+        this.clientWidth = clientWidth;
+    }
+
+    public int getClientHeight() {
+        return clientHeight;
+    }
+
+    public void setClientHeight(int clientHeight) {
+        this.clientHeight = clientHeight;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
     }
 }

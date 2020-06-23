@@ -51,6 +51,9 @@ public class LogSubmitController {
         log.setSiteId(site.getId());
         log.setPath(form.getPath());
         log.setContent(form.getContent());
+        log.setClientWidth(form.getClientWidth());
+        log.setClientHeight(form.getClientHeight());
+        log.setUserAgent(form.getUserAgent());
         if (errorLogService.create(log)) {
             return R.success("提交成功");
         } else {
@@ -93,6 +96,9 @@ public class LogSubmitController {
         log.setPath(form.getPath());
         log.setContent(form.getContent());
         log.setType(form.getType());
+        log.setClientWidth(form.getClientWidth());
+        log.setClientHeight(form.getClientHeight());
+        log.setUserAgent(form.getUserAgent());
         if (missionLogService.create(log)) {
             return R.success("提交成功");
         } else {

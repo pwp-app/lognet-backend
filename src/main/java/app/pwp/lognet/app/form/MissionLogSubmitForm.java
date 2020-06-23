@@ -15,6 +15,9 @@ public class MissionLogSubmitForm {
     private String type;
     @NotEmpty(message = "请提交正确参数")
     private String content;
+    private int clientWidth;
+    private int clientHeight;
+    private String userAgent;
 
     public String getAppKey() {
         return appKey;
@@ -54,5 +57,29 @@ public class MissionLogSubmitForm {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public int getClientWidth() {
+        return clientWidth;
+    }
+
+    public void setClientWidth(int clientWidth) {
+        this.clientWidth = clientWidth;
+    }
+
+    public int getClientHeight() {
+        return clientHeight;
+    }
+
+    public void setClientHeight(int clientHeight) {
+        this.clientHeight = clientHeight;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
     }
 }

@@ -17,7 +17,14 @@ public class UserAuthUtils {
         if (user == null || user.getId() == null) {
             throw new RuntimeException("无法获取用户信息");
         }
-        user = userService.getById(user.getId());
+        if (user.getId() != null) {
+            user = userService.getById(user.getId());
+        } else {
+            if (user.getUsername() == null) {
+                throw new RuntimeException("无法获取用户信息");
+            }
+            user = userService.getByUsername(user.getUsername());
+        }
         if (user == null) {
             throw new RuntimeException("无法获取用户信息");
         }
