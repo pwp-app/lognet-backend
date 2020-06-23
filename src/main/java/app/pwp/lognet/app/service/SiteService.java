@@ -102,7 +102,7 @@ public class SiteService extends BaseService<Site> {
             @CacheEvict(value = "queryLongCache", key="'site_byId_' + #site.id"),
             @CacheEvict(value = "queryLongCache", key="'site_id_' + #site.appKey"),
             @CacheEvict(value = "queryLongCache", key="'site_uid_' + #site.id"),
-            @CacheEvict(value = "queryLongCache", key="'site_domain_exists_' + #site.uid + '_' + #site.domain")
+            @CacheEvict(value = "queryLongCache", key="'site_domain_exists_' + #site.uid + '_' + #site.domain"),
             @CacheEvict(value = "queryLongCache", key = "'site_enabled_' + #stie.id")
     })
     public boolean delete(Site site) {
