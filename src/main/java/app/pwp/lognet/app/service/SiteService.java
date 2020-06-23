@@ -15,6 +15,10 @@ import java.util.HashMap;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class SiteService extends BaseService<Site> {
+    public HashMap<String, Object> list(int page, int pageSize) {
+        return this.baseDao.showPageWithTotal("FROM Site WHERE ORDER BY createTime DESC", page, pageSize);
+    }
+
     public HashMap<String, Object> listByUser(long uid, int page, int pageSize) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("uid", uid);

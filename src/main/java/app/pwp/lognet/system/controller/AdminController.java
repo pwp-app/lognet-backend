@@ -1,5 +1,7 @@
 package app.pwp.lognet.system.controller;
 
+import app.pwp.lognet.app.form.GeneralSiteForm;
+import app.pwp.lognet.app.service.SiteService;
 import app.pwp.lognet.system.form.GeneralUserForm;
 import app.pwp.lognet.system.model.User;
 import app.pwp.lognet.system.service.UserService;
@@ -16,6 +18,8 @@ import javax.validation.Valid;
 public class AdminController {
     @Resource
     private UserService userService;
+    @Resource
+    private SiteService siteService;
 
     public R listUser(int page, int pageSize) {
         return R.success(userService.list(page, pageSize));
@@ -47,5 +51,11 @@ public class AdminController {
         }
     }
 
-    
+    public R listSite(int page, int pageSize) {
+
+    }
+
+    public R banSite(@RequestBody @Valid GeneralSiteForm form) {
+
+    }
 }
