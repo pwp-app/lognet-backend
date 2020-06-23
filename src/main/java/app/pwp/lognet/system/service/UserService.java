@@ -11,6 +11,10 @@ import java.util.HashMap;
 @Service
 @Transactional(rollbackFor=Exception.class)
 public class UserService extends BaseService<User> {
+    public HashMap<String, Object> list(int page, int pageSize) {
+        return this.baseDao.showPageWithTotal("FROM User ORDER BY id DESC", page, pageSize);
+    }
+
     public boolean create(User user) {
         return this.baseDao.add(user);
     }

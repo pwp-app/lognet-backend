@@ -105,6 +105,7 @@ public class ShiroConfig {
         for (String path : anonPaths) {
             filterChainDefinitionMap.put(path, "anon");
         }
+        filterChainDefinitionMap.put("/admin/**", "roles[admin]");
         // 对应的是user拦截器，支持rememberMe
         filterChainDefinitionMap.put("/**", "user");
         shiroFilter.setFilterChainDefinitionMap(filterChainDefinitionMap);
