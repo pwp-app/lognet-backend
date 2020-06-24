@@ -1,14 +1,17 @@
 package app.pwp.lognet.system.model;
 
 import app.pwp.lognet.base.model.BaseEntity;
+import app.pwp.lognet.system.ro.AdminUserListItem;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.validation.constraints.NotEmpty;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
+@SqlResultSetMapping(name = "AdminUserListItem", classes = {
+        @ConstructorResult(targetClass = AdminUserListItem.class,
+                columns = {@ColumnResult(name = "uid", type=Long.class), @ColumnResult(name = "createTime", type= Date.class), @ColumnResult(name = "username"), @ColumnResult(name = "role"), @ColumnResult(name="enabled", type=Boolean.class)})
+})
 @Table(name = "lognet_user")
 public class User extends BaseEntity implements Serializable {
     @Column(nullable = false)

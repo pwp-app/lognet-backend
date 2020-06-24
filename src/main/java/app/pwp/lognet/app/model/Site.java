@@ -1,13 +1,18 @@
 package app.pwp.lognet.app.model;
 
+import app.pwp.lognet.app.ro.RunningMission;
 import app.pwp.lognet.base.model.BaseUUIDEntity;
+import app.pwp.lognet.system.ro.AdminSiteListItem;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
+@SqlResultSetMapping(name = "AdminSiteListItem", classes = {
+        @ConstructorResult(targetClass = AdminSiteListItem.class,
+                columns = {@ColumnResult(name = "id"), @ColumnResult(name = "uid", type=Long.class), @ColumnResult(name = "createTime", type=Date.class), @ColumnResult(name = "username"), @ColumnResult(name = "domain"), @ColumnResult(name="enabled", type=Boolean.class)})
+})
 @Table(name = "lognet_sites")
 public class Site extends BaseUUIDEntity implements Serializable {
     // 所属用户

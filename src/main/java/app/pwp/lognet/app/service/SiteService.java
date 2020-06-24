@@ -2,8 +2,10 @@ package app.pwp.lognet.app.service;
 
 import app.pwp.lognet.app.model.Site;
 import app.pwp.lognet.base.service.BaseService;
+import app.pwp.lognet.system.ro.AdminSiteListItem;
 import app.pwp.lognet.utils.common.HashUtils;
 import app.pwp.lognet.utils.common.UUIDUtils;
+import org.hibernate.query.NativeQuery;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -11,12 +13,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class SiteService extends BaseService<Site> {
     public HashMap<String, Object> list(int page, int pageSize) {
-        return this.baseDao.showPageWithTotal("FROM Site WHERE ORDER BY createTime DESC", page, pageSize);
+        HashMap<String, Object> response = new HashMap<>();
+        NativeQuery query = this.baseDao.getHibernateSession().createNativeQuery("SELECT s.id, s.create_time as createTime, s.uid, u.username, s.domain, s.is_enabled ad enabled FROM lognet_site s INNER JOIN lognet_user u ON s.uid = u.id ORDER BY s.createTime DESC", "AdminSiteListItem");
+        query.setFirstResult((page - 1) * pageSize).setMaxResults(pageSize);
+        List<AdminSiteListItem> res = (List<AdminSiteListItem>) query.list();
+        response.put("data", res);
+        response.put("total", this.count());
+        return response;
     }
 
     public HashMap<String, Object> listByUser(long uid, int page, int pageSize) {
@@ -50,6 +59,10 @@ public class SiteService extends BaseService<Site> {
         params.put("uid", uid);
         params.put("domain", domain);
         return this.baseDao.countBySession("SELECT count(*) FROM Site WHERE uid = :uid AND domain = :domain", params) > 0;
+    }
+
+    public Long count() {
+        return this.baseDao.countByHql("SELECT count(*) FROM Site");
     }
 
     public Long countByUser(Long uid) {

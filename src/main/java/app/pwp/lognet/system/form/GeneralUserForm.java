@@ -6,13 +6,13 @@ import javax.validation.constraints.NotNull;
 public class GeneralUserForm {
     @NotNull(message = "请提交正确的参数")
     @Min(value = 1, message = "请提交正确的参数")
-    private long uid;
+    private Long uid;
 
-    public long getUid() {
+    public Long getUid() {
         return uid;
     }
 
-    public void setUid(long uid) {
+    public void setUid(Long uid) {
         this.uid = uid;
     }
 }
