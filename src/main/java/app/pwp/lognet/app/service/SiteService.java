@@ -20,7 +20,7 @@ import java.util.List;
 public class SiteService extends BaseService<Site> {
     public HashMap<String, Object> list(int page, int pageSize) {
         HashMap<String, Object> response = new HashMap<>();
-        NativeQuery query = this.baseDao.getHibernateSession().createNativeQuery("SELECT s.id, s.create_time as createTime, s.uid, u.username, s.domain, s.is_enabled ad enabled FROM lognet_site s INNER JOIN lognet_user u ON s.uid = u.id ORDER BY s.createTime DESC", "AdminSiteListItem");
+        NativeQuery query = this.baseDao.getHibernateSession().createNativeQuery("SELECT s.id, s.create_time as createTime, s.uid, u.username, s.domain, s.is_enabled as enabled FROM lognet_sites s INNER JOIN lognet_user u ON s.uid = u.id ORDER BY s.create_time DESC", "AdminSiteListItem");
         query.setFirstResult((page - 1) * pageSize).setMaxResults(pageSize);
         List<AdminSiteListItem> res = (List<AdminSiteListItem>) query.list();
         response.put("data", res);
