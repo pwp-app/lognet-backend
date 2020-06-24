@@ -56,7 +56,7 @@ spring:
         physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
   profiles:
-    active: common,mail,dev
+    active: common,mail,deploy
   devtools:
     livereload:
       enabled: true
