@@ -53,6 +53,10 @@ public class LogSubmitController {
         log.setContent(form.getContent());
         log.setClientWidth(form.getClientWidth());
         log.setClientHeight(form.getClientHeight());
+        log.setWindowInnerWidth(form.getWindowInnerWidth());
+        log.setWindowInnerHeight(form.getWindowInnerHeight());
+        log.setWindowOuterWidth(form.getWindowOuterWidth());
+        log.setWindowOuterHeight(form.getWindowOuterHeight());
         log.setUserAgent(form.getUserAgent());
         if (errorLogService.create(log)) {
             return R.success("提交成功");
@@ -102,6 +106,10 @@ public class LogSubmitController {
         log.setType(form.getType());
         log.setClientWidth(form.getClientWidth());
         log.setClientHeight(form.getClientHeight());
+        log.setWindowInnerWidth(form.getWindowInnerWidth());
+        log.setWindowInnerHeight(form.getWindowInnerHeight());
+        log.setWindowOuterWidth(form.getWindowOuterWidth());
+        log.setWindowOuterHeight(form.getWindowOuterHeight());
         log.setUserAgent(form.getUserAgent());
         if (missionLogService.create(log)) {
             return R.success("提交成功");

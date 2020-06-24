@@ -17,6 +17,10 @@ public class MissionLogSubmitForm {
     private String content;
     private int clientWidth;
     private int clientHeight;
+    private int windowInnerWidth;
+    private int windowInnerHeight;
+    private int windowOuterWidth;
+    private int windowOuterHeight;
     private String userAgent;
 
     public String getAppKey() {
@@ -73,6 +77,38 @@ public class MissionLogSubmitForm {
 
     public void setClientHeight(int clientHeight) {
         this.clientHeight = clientHeight;
+    }
+
+    public int getWindowInnerWidth() {
+        return windowInnerWidth;
+    }
+
+    public void setWindowInnerWidth(int windowInnerWidth) {
+        this.windowInnerWidth = windowInnerWidth;
+    }
+
+    public int getWindowInnerHeight() {
+        return windowInnerHeight;
+    }
+
+    public void setWindowInnerHeight(int windowInnerHeight) {
+        this.windowInnerHeight = windowInnerHeight;
+    }
+
+    public int getWindowOuterWidth() {
+        return windowOuterWidth;
+    }
+
+    public void setWindowOuterWidth(int windowOuterWidth) {
+        this.windowOuterWidth = windowOuterWidth;
+    }
+
+    public int getWindowOuterHeight() {
+        return windowOuterHeight;
+    }
+
+    public void setWindowOuterHeight(int windowOuterHeight) {
+        this.windowOuterHeight = windowOuterHeight;
     }
 
     public String getUserAgent() {
