@@ -114,6 +114,10 @@ public class UserController {
         if (user == null) {
             return R.error("无法获取用户信息");
         }
+        // 检查邮箱占用
+        if (userService.existsByMail(form.getNewMail())) {
+            return R.error("该邮箱已被占用");
+        }
         String passwordHash = new SimpleHash("SHA-256", form.getPassword(), user.getSalt(), 32).toHex();
         if (!user.getPassword().equals(passwordHash)) {
             return R.error("用户密码不正确");
