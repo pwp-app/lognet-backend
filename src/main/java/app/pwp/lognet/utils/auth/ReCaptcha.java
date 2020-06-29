@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 
 @Component
@@ -37,8 +38,7 @@ public class ReCaptcha {
             if (!(boolean) parsedObject.get("success")) {
                 throw new RuntimeException("reCAPTCHA 验证失败");
             }
-            //return new AsyncResult<>(((BigDecimal) parsedObject.get("score")).doubleValue() >= THRESHOLD);
-            return new AsyncResult<>(true);
+            return new AsyncResult<>(((BigDecimal) parsedObject.get("score")).doubleValue() >= THRESHOLD);
         } catch (Exception e) {
             e.printStackTrace();
             return new AsyncResult<>(false);

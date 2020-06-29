@@ -14,7 +14,7 @@ public class UserAuthUtils {
 
     public User getUser() {
         User user = (User) SecurityUtils.getSubject().getPrincipal();
-        if (user == null || user.getId() == null) {
+        if (user == null) {
             throw new RuntimeException("无法获取用户信息");
         }
         if (user.getId() != null) {
