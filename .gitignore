@@ -38,10 +38,7 @@ logs
 session
 
 ### Config ###
-recaptcha.properties
-key.properties
 shiro.properties
-czip.properties
-alimap.properties
+application-common.yml
 application-deploy.yml
 application-mail.yml

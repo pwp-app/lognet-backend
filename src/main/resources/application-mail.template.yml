@@ -1,0 +1,17 @@
+spring:
+  mail:
+    host: [SMTP HOST]
+    port: [SMTP PORT]
+    username: [SMTP USERNAME]
+    password: [SMTP PASSWORD]
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: true
+          starttils:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 3000
+          writetimeout: 5000
