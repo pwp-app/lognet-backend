@@ -1,0 +1,4 @@
+recaptcha:
+  secret: [YOUR RECAPTCHA SECRET]
+alimap:
+  key: [YOUR ALIMAP API SECRET]
